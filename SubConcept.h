@@ -26,9 +26,10 @@ using namespace std;
 class Util //contains basic IO behaviors needed by other classes
 {
 	public:
-		int get_int(int min=0, int max=INT_MAX);
-		string get_string(int min=1, int max=100000);	//arbitrary max
-		void disp_invalid_input(string);
+		int get_int(const int = 0, const int = INT_MAX) const;
+		string get_string(const int = 1,
+						  const int = 100000) const;	//arbitrary max
+		void disp_invalid_input(const string) const;
 };
 
 /*	Wraps information about a website into a convenient package for maintenance,
@@ -41,15 +42,13 @@ class Website: public Util
 
 		friend ostream& operator<<(ostream&, const Website&);
 
-		//UI functions
-		//these catch exceptions...
-		void setup(void);	//calls all private validators, sets on success
-		void edit(string _choice = "");
-		bool is_set_up(void);
+		//calls all private validators, true on success
+		bool setup(bool = false, bool = false, bool = false);
+		void edit(string = "");
 
 	private:
 		//these throw exceptions...
-		void validate_url(string& _url);	//validates basic format
+		void validate_url(const string& _url) const;	//uses regex - see .cpp
 		void set_url(void);
 		void set_rating(void);
 		void set_description(void);
@@ -68,13 +67,12 @@ class Method: public Util
 	public:
 		Method();
 
-		//UI functions
-		void setup(void);	//calls all private setters
-		void edit(void);	//user chooses to set name or description
+		void setup(bool = false, bool = false);	//calls all private setters
+		void edit(string = "");	//user chooses to set name or description
 
 	private:
-		void set_name(string&);			//min len 1
-		void set_description(string&);	//min len 1
+		void set_name(const string&);			//min len 1
+		void set_description(const string&);	//min len 1
 
 		string name;
 		string description;

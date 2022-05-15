@@ -25,19 +25,19 @@
  *			initialization-within-conditionals, etc).
  */
 
-class Concept: public Util //abstract base class
+class Concept: public Util
 {
 	public:
 		Concept(void);
-		//parameterized constructor for automated testing...
-		//not that important for this particular class, but a habit
-		//I am trying to get into
-		Concept(string _name, string _desc, string _site, int _rating);
+		~Concept(void);
 
-		virtual void setup(void) = 0; //calls all private setters/1 of each adder
-		virtual void add_info(void) = 0;	  //add website, method, pro or con
-		virtual void edit_info(void) = 0;	  //edit website, method, pro or con
-		virtual Concept& lookup(string&) = 0; //pure virtual seems appropriate?
+		//calls all private setters/1 of each adder
+		virtual bool setup(bool = false, bool = false, bool = false); 
+		//add website, method, pro or con
+		virtual void add_info(string = "");
+		//edit website, method, pro or con
+		virtual void edit_info(string = "");
+		virtual bool lookup(string&);	//pure virtual seems appropriate?
 		//string arg of lookup used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword.
 
@@ -66,6 +66,10 @@ class STL
 			vector<Method>);				//for tests
 
 		//need a unique derived method TODO
+		bool setup(void);		//calls all private setters/1 of each adder
+		void add_info(void);		//add pro or con
+		void edit_info(void);		//edit pro or con
+		bool lookup(string&);		//partially match pros and cons
 
 	private:
 		vector<Method> methods;
@@ -85,6 +89,10 @@ class PythonLib
 				  string, vector<Method>);		//for tests
 
 		//need a unique derived method TODO
+		bool setup(void);		//calls all private setters/1 of each adder
+		void add_info(void);		//add pro or con
+		void edit_info(void);		//edit pro or con
+		bool lookup(string&);		//partially match pros and cons
 
 	private:
 		string class_name;
@@ -100,10 +108,15 @@ class ModernCpp
 		ModernCpp(void);
 		ModernCpp(string, string, string, int, vector<Method>); //for tests
 
-		int rate_applicability(void);	//based on count of pros vs cons,
-										//informs user about how widely
-										//applicable the technique is/how
-										//careful they should be about overusing
+		string check_applicability(string&); //returns all pros and cons from
+										//any ModernCpp instance if they contain
+										//the string arg, concatenating them and
+										//printing them.
+		bool setup(void);		//calls all private setters/1 of each adder
+		void add_info(void);		//add pro or con
+		void edit_info(void);		//edit pro or con
+		bool lookup(string&);		//partially match pros and cons
+
 	private:
 		vector<string> pros;
 		vector<string> cons;

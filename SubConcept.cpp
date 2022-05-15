@@ -13,7 +13,7 @@
 /*			CLASS UTIL			*/
 /*	PUBLIC METHODS	*/
 
-int Util::get_int(int min, int max)
+int Util::get_int(const int min, const int max) const
 {
 	int ret {-2};
 	cin >> ret;
@@ -26,7 +26,7 @@ int Util::get_int(int min, int max)
 	return ret;
 }
 
-string Util::get_string(int min, int max)
+string Util::get_string(const int min, const int max) const
 {
 	string ret {""};
 	getline(cin, ret);
@@ -38,7 +38,7 @@ string Util::get_string(int min, int max)
 	return ret;
 }
 
-void Util::disp_invalid_input(string bad_input)
+void Util::disp_invalid_input(const string bad_input) const
 {
 	cout << "Bad input! \"" << bad_input << "\" is not valid.\n";
 }
@@ -57,25 +57,36 @@ ostream& operator<<(ostream& out, const Website& op2)
 
 /*	PUBLIC METHODS	*/
 
-void Website::setup(void)
+bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 {
+	bool ret {true};
 	try{
-		set_url();
-		set_description();
-		set_rating();
+		if (! url_set){
+			set_url();
+			url_set = true;
+		}
+		if (! desc_set){
+			set_description();
+			desc_set = true;
+		}
+		if (! rating_set){
+			set_rating();
+			rating_set = true;
+		}
 	}
 
 	catch (invalid_argument& bad_input){
 		disp_invalid_input((string) bad_input.what());
 		cout << "Please try again.\n";
-		setup(); //setup must be completed
+		return setup(url_set, desc_set, rating_set); //setup must be completed
 	}
 
 	catch (const char*& user_quits){
 		*this = Website(); //reset and return
+		ret = false;
 	}
 
-	return;
+	return ret;
 }
 
 void Website::edit(string _choice)
@@ -98,7 +109,7 @@ void Website::edit(string _choice)
 		}
 	}
 
-	catch (invalid_argument& bad_input){
+	catch (const invalid_argument& bad_input){
 		disp_invalid_input((string) bad_input.what());
 		edit(_choice);
 	}
@@ -110,18 +121,18 @@ void Website::edit(string _choice)
 	return;
 }
 
-bool Website::is_set_up(void)
-{
-	return (rating > 0 and rating < 11 and url != "NOT SET");
-}
-
 /*	PRIVATE METHODS	*/
 
-void Website::validate_url(string& _url)
+/*	This will accept any format from the most shortened possible like "a.co"
+ * to the longest most unwieldy like "https://online.visual-paradigm.com/
+ * w/jwdamuwc/app/diagrams/#diagram:workspace=jwdamuwc&proj=0&id=1".
+ */
+void Website::validate_url(const string& _url) const
 {
-	//shortest abbreviated url is of format "a.co"
-	regex pattern {
-	"[-a-zA-Z0-9@:%_\\+.~#?&\\/=]{1,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&\\/=]*)?"}; 
+	regex pattern { //pattern modified from regexr.com/2rj36
+		  (string) "[-a-zA-Z0-9@:%_\\+.~#?&\\/=]{1,256}\\."
+		+ (string) "[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+.~#?&\\/=]*)?" };
+
 	if (! regex_match(_url, pattern))
 		throw invalid_argument(_url);
 	return;
@@ -130,8 +141,8 @@ void Website::validate_url(string& _url)
 void Website::set_url(void)
 {
 	cout << "Enter a URL or {!q} to quit: ";
-	string _url {get_string(4, 2048)}; //may throw
-	validate_url(_url);			//may throw
+	string _url {get_string(4, 2048)};	//may throw
+	validate_url(_url);					//may throw (regex quarantine)
 	url = _url;
 }
 

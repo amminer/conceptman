@@ -4,11 +4,10 @@
 int main(void)
 {
 	Website site;
-	site.setup();
-	if (site.is_set_up()){
-		cout << site << '\n';
+	if (site.setup()){ //returns false if user cancels
+		cout << '\n' << site << '\n';
 		site.edit();
-		cout << site << '\n';
+		cout << '\n' << site << '\n';
 	}
 	else
 		cout << "User cancelled site!\n";
