@@ -29,7 +29,7 @@ class Concept: public Util
 {
 	public:
 		Concept(void);
-		~Concept(void);
+		virtual ~Concept(void);
 
 		//calls all private setters/1 of each adder
 		virtual bool setup(bool = false, bool = false, bool = false); 

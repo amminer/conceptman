@@ -23,6 +23,7 @@ using namespace std;
  *			to perform common IO operations via terminal input.
  */
 
+//should this be an abc somehow? Never gets instantiated...
 class Util //contains basic IO behaviors needed by other classes
 {
 	public:
@@ -71,8 +72,8 @@ class Method: public Util
 		void edit(string = "");	//user chooses to set name or description
 
 	private:
-		void set_name(const string&);			//min len 1
-		void set_description(const string&);	//min len 1
+		void set_name();			//min len 1
+		void set_description();	//min len 1
 
 		string name;
 		string description;

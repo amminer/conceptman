@@ -15,27 +15,27 @@
 
 int Util::get_int(const int min, const int max) const
 {
-	int ret {-2};
-	cin >> ret;
+	int _ret {-2};
+	cin >> _ret;
 	cin.clear();
 	cin.ignore(1000, '\n');
-	if (ret == -1)
+	if (_ret == -1)
 		throw "user quits!";
-	if (ret < min or ret > max)
+	if (_ret < min or _ret > max)
 		throw invalid_argument(to_string(ret));
-	return ret;
+	return _ret;
 }
 
 string Util::get_string(const int min, const int max) const
 {
-	string ret {""};
-	getline(cin, ret);
-	if (ret == "!q")
+	string _ret {""};
+	getline(cin, _ret);
+	if (_ret == "!q")
 		throw "user quits!";
-	size_t len {ret.length()};
+	size_t len {_ret.length()};
 	if (len < (size_t)min or len > (size_t)max)
-		throw invalid_argument(ret);
-	return ret;
+		throw invalid_argument(_ret);
+	return _ret;
 }
 
 void Util::disp_invalid_input(const string bad_input) const
@@ -159,24 +159,30 @@ void Website::set_description(void)
 }
 
 /*		CLASS METHOD		*/
-//TODO
 
-/*
-class Method
+Method::Method(void)
+	: name("NOT SET"), description("NOT SET") {}
+
+/*	PUBLIC METHODS	*/
+
+void method::setup(bool name_set, bool desc_set)
 {
-	public:
-		Method();
+	//TODO
+}
 
-		//UI functions
-		void setup(void);	//calls all private setters
-		void edit(void);	//user chooses to set name or description
+void method::edit(string _choice)
+{
+	//TODO
+}
 
-	private:
-		void set_name(string&);			//min len 1
-		void set_description(string&);	//min len 1
+/*	PRIVATE METHODS	*/
 
-		string name;
-		string description;
-		//strikingly similar to class concept - could class concept inherit from method?
-};
-*/
+void Method::set_name(void);
+{
+	//TODO
+}
+
+void Method::set_description(void);
+{
+	//TODO
+}

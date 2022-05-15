@@ -2,6 +2,7 @@
 
 int main(void)
 {
+	/* copied from website test TODO
 	Website site;
 	if (site.setup()){ //returns false if user cancels
 		cout << '\n' << site << '\n';
@@ -10,6 +11,7 @@ int main(void)
 	}
 	else
 		cout << "User cancelled site!\n";
+	*/
 
 	return 0;
 }
