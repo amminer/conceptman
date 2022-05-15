@@ -1,9 +1,9 @@
 #pragma once
 
 #include <iostream>
-#include <climits>
+#include <climits>		//INT_MAX
 #include <exception>	//bad_argument
-#include <regex>
+#include <regex>		//sorry, you have to look at a regex pattern
 
 using namespace std;
 
@@ -11,19 +11,22 @@ using namespace std;
  *	cs202, section 003
  *	FILE:		SubConcept.h
  *	PURPOSE:	Declare abstractions of data contained by Concept
- *			classes; class Website is used to contain information
- *			regarding a STL or PythonLib method, class website is used
+ *			classes; class Method is used to contain information
+ *			regarding a STL or PythonLib method, class Website is used
  *			to contain information regarding a website including a URL
  *			and a rating out of 10, as well as whatever else one might
  *			want to add down the road, since this is much more flexible
  *			than representing a website as a pair<string, int> for example.
- *				As these are the "bottom level" classes, UI utility functions
- *			are also declared here for use throughout the program.
  *				Also contains a Util class, inherited by any classes that need
- *			to perform common IO operations via terminal input.
+ *			to perform common IO operations via terminal input (all of them).
+ *		*.......All classes in this program follow a pattern of public methods
+ *			setup and edit, which are UI entry points for client code. All
+ *			validation happens internal to the class and exceptions + recursive
+ *			calls with boolean return values for each field being set allow the
+ *			program to return to the exact point it needs to based on previous
+ *			user input.
  */
 
-//should this be an abc somehow? Never gets instantiated...
 class Util //contains basic IO behaviors needed by other classes
 {
 	public:
@@ -68,14 +71,16 @@ class Method: public Util
 	public:
 		Method();
 
-		void setup(bool = false, bool = false);	//calls all private setters
+		friend ostream& operator<<(ostream&, const Method&);
+
+		bool setup(bool = false, bool = false);	//calls all private setters
 		void edit(string = "");	//user chooses to set name or description
 
 	private:
 		void set_name();			//min len 1
-		void set_description();	//min len 1
+		void set_description();		//min len 1
 
 		string name;
 		string description;
-		//strikingly similar to class concept - could class concept inherit from method?
+		//strikingly similar to class concept - could concept inherit from method?
 };

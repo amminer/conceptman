@@ -20,9 +20,9 @@ int Util::get_int(const int min, const int max) const
 	cin.clear();
 	cin.ignore(1000, '\n');
 	if (_ret == -1)
-		throw "user quits!";
+		throw "user cancels!";
 	if (_ret < min or _ret > max)
-		throw invalid_argument(to_string(ret));
+		throw invalid_argument(to_string(_ret));
 	return _ret;
 }
 
@@ -31,7 +31,7 @@ string Util::get_string(const int min, const int max) const
 	string _ret {""};
 	getline(cin, _ret);
 	if (_ret == "!q")
-		throw "user quits!";
+		throw "user cancels!";
 	size_t len {_ret.length()};
 	if (len < (size_t)min or len > (size_t)max)
 		throw invalid_argument(_ret);
@@ -71,7 +71,7 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 		}
 		if (! rating_set){
 			set_rating();
-			rating_set = true;
+			rating_set = true; //unnecessary to check last input? TODO
 		}
 	}
 
@@ -81,7 +81,7 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 		return setup(url_set, desc_set, rating_set); //setup must be completed
 	}
 
-	catch (const char*& user_quits){
+	catch (const char*& user_cancels){
 		*this = Website(); //reset and return
 		ret = false;
 	}
@@ -94,7 +94,7 @@ void Website::edit(string _choice)
 	try{
 		if (_choice == ""){
 			cout << "Would you like to edit the"
-				 << " {url}, {rating}, or {description}?\n{!q} to quit: ";
+				 << " {url}, {rating}, or {description}?\n{!q} to cancel: ";
 			_choice = get_string(2);
 		}
 		if		(_choice == "url")
@@ -114,7 +114,7 @@ void Website::edit(string _choice)
 		edit(_choice);
 	}
 
-	catch (const char*& user_quits){
+	catch (const char*& user_cancels){ //user entered !q
 		; //do nothing and return (don't want to erase existing data)
 	}
 
@@ -140,7 +140,7 @@ void Website::validate_url(const string& _url) const
 
 void Website::set_url(void)
 {
-	cout << "Enter a URL or {!q} to quit: ";
+	cout << "Enter a URL or {!q} to cancel: ";
 	string _url {get_string(4, 2048)};	//may throw
 	validate_url(_url);					//may throw (regex quarantine)
 	url = _url;
@@ -148,13 +148,13 @@ void Website::set_url(void)
 
 void Website::set_rating(void)
 {
-	cout << "Enter a rating out of 10 or {-1} to quit: ";
+	cout << "Enter a rating out of 10 or {-1} to cancel: ";
 	rating = get_int(1, 10);	//may throw
 }
 
 void Website::set_description(void)
 {
-	cout << "Enter a Description or {!q} to quit: ";
+	cout << "Enter a description or {!q} to cancel: ";
 	description = get_string();	//may throw
 }
 
@@ -163,26 +163,83 @@ void Website::set_description(void)
 Method::Method(void)
 	: name("NOT SET"), description("NOT SET") {}
 
-/*	PUBLIC METHODS	*/
-
-void method::setup(bool name_set, bool desc_set)
+ostream& operator<<(ostream& out, const Method& op2)
 {
-	//TODO
+	cout << "Method \"" << op2.name << "\":\n\t"
+		 << op2.description;
+	return out;
 }
 
-void method::edit(string _choice)
+/*	PUBLIC METHODS	*/
+
+bool Method::setup(bool name_set, bool desc_set)
 {
-	//TODO
+	bool ret {true};
+	try{
+		if (! name_set){
+			set_name();
+			name_set = true;
+		}
+		if (! desc_set){
+			set_description();
+			desc_set = true; //unnecessary to check last input? TODO
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		return setup(name_set, desc_set); //setup must be completed
+	}
+
+	catch (const char*& user_cancels){
+		*this = Method(); //reset and return
+		ret = false;
+	}
+
+	return ret;
+}
+
+void Method::edit(string _choice)
+{
+	try{
+		if (_choice == ""){
+			cout << "Would you like to edit the"
+				 << " {name} or {description}?\n{!q} to cancel: ";
+			_choice = get_string(2);
+		}
+		if		(_choice == "name")
+			set_name();
+		else if (_choice == "description")
+			set_description();
+		else{
+			disp_invalid_input(_choice);
+			edit();
+		}
+	}
+
+	catch (const invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		edit(_choice);
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		; //do nothing and return (don't want to erase existing data)
+	}
+
+	return;
 }
 
 /*	PRIVATE METHODS	*/
 
-void Method::set_name(void);
+void Method::set_name(void)
 {
-	//TODO
+	cout << "Enter a name or {!q} to cancel: ";
+	name = get_string();		//may throw
 }
 
-void Method::set_description(void);
+void Method::set_description(void)
 {
-	//TODO
+	cout << "Enter a description or {!q} to cancel: ";
+	description = get_string();	//may throw
 }

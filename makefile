@@ -1,6 +1,6 @@
 CFLAGS=     -g -Wall -std=c++17
 VFLAGS=		--leak-check=full
-SOURCES=	tests/testWebsite.cpp SubConcept.cpp 
+SOURCES=	tests/testConcepts.cpp SubConcept.cpp Concept.cpp
 EXE=     	main.out
 CC=			g++
 

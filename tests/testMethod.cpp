@@ -2,16 +2,14 @@
 
 int main(void)
 {
-	/* copied from website test TODO
-	Website site;
-	if (site.setup()){ //returns false if user cancels
-		cout << '\n' << site << '\n';
-		site.edit();
-		cout << '\n' << site << '\n';
+	Method meth;
+	if (meth.setup()){ //returns false if user cancels
+		cout << '\n' << meth << '\n';
+		meth.edit();
+		cout << '\n' << meth << '\n';
 	}
 	else
-		cout << "User cancelled site!\n";
-	*/
+		cout << "User cancelled method!\n";
 
 	return 0;
 }
