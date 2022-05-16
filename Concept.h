@@ -29,15 +29,18 @@ class Concept: public Util
 {
 	public:
 		Concept(void);
-		virtual ~Concept(void);
+		//virtual ~Concept(void);
+
+		friend ostream& operator<<(ostream& out, const Concept& op2);
 
 		//calls all private setters/1 of each adder
 		virtual bool setup(bool = false, bool = false, bool = false); 
 		//add website, method, pro or con
-		virtual void add_info(string = "");
+		virtual void add(string = "");
 		//edit website, method, pro or con
-		virtual void edit_info(string = "");
-		virtual bool lookup(string&);	//pure virtual seems appropriate?
+		virtual void edit(string = "");
+		//lookup website, method, pro or con
+		virtual bool lookup(string&);
 		//string arg of lookup used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
@@ -58,7 +61,7 @@ class Concept: public Util
  * STL instance for holding any STL methods that do not belong to a container
  * (such as std::min_element)
  */
-class STL
+class STL: public Concept
 {
 	public:
 		STL(void);							//for use in client code
@@ -66,13 +69,15 @@ class STL
 			vector<Method>);				//for tests
 
 		//need a unique derived method TODO
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
+		bool setup(bool = false);		//calls all private setters/1 of each adder
+		void add(string = "");		//add pro or con
+		void edit(string = "");		//edit pro or con
 		bool lookup(string&);		//partially match pros and cons
 
 	private:
 		vector<Method> methods;
+
+		void edit_stl(string = ""); //called by edit as subroutine
 };
 
 /*	Each Python library class gets many PythonLib instances with the same base
@@ -81,7 +86,7 @@ class STL
  * instance to hold all library methods not belonging to any particular class
  * whose class_name string is "global to library"
  */
-class PythonLib
+class PythonLib: public Concept
 {
 	public:
 		PythonLib(void);						//for use in client code
@@ -89,20 +94,25 @@ class PythonLib
 				  string, vector<Method>);		//for tests
 
 		//need a unique derived method TODO
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
+		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
+		void add_info(string = "");		//add pro or con
+		void edit_info(string = "");		//edit pro or con
 		bool lookup(string&);		//partially match pros and cons
 
 	private:
 		string class_name;
 		vector<Method> methods;
+
+		void edit_pythonlib(void); //called by edit as subroutine
+		void set_class_name(void);
+		void add_method(void);
+		void edit_method(void);
 };
 
 /*	Each modern c++ technique gets one ModernCpp instance, with a container of
  * strings for pros and cons of that technique.
  */
-class ModernCpp
+class ModernCpp: public Concept
 {
 	public:
 		ModernCpp(void);
@@ -112,12 +122,16 @@ class ModernCpp
 										//any ModernCpp instance if they contain
 										//the string arg, concatenating them and
 										//printing them.
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
+		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
+		void add(string = "");		//add pro or con
+		void edit(string = "");		//edit pro or con
 		bool lookup(string&);		//partially match pros and cons
 
 	private:
 		vector<string> pros;
 		vector<string> cons;
+
+		void edit_moderncpp(void); //called by edit as subroutine
+		void add_pro_or_con(void);
+		void edit_pro_or_con(void);
 };

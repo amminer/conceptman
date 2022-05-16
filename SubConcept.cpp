@@ -20,7 +20,7 @@ int Util::get_int(const int min, const int max) const
 	cin.clear();
 	cin.ignore(1000, '\n');
 	if (_ret == -1)
-		throw "user cancels!";
+		throw "user cancels!"; //const char*
 	if (_ret < min or _ret > max)
 		throw invalid_argument(to_string(_ret));
 	return _ret;
@@ -62,6 +62,7 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 	bool ret {true};
 	try{
 		if (! url_set){
+			cout << "Setting up a new Website...\n"; //testing, will refine message to user
 			set_url();
 			url_set = true;
 		}
@@ -177,6 +178,7 @@ bool Method::setup(bool name_set, bool desc_set)
 	bool ret {true};
 	try{
 		if (! name_set){
+			cout << "Setting up a new Method...\n"; //testing, will refine message to user
 			set_name();
 			name_set = true;
 		}

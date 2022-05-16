@@ -3,23 +3,11 @@
 /*	Amelia Miner				5/14/2022
  *	cs202, section 003
  *	FILE:		Concept.cpp
- *	PURPOSE:	TODO... Declare the central hierarchy for the program,
+ *	PURPOSE:	Define the central hierarchy for the program,
  *			one base class Concept and three derived classes STL,
- *			PythonLib, and ModernCpp. Each class has a self similar
- *			interface with the exception of one function per derived
- *			class.
- *				PythonLib and STL objects contain a collection of methods,
- *			which belong to the container indicated by STL.name or the class
- *			indicated by PythonLib.class_name within the library PythonLib.name.
- *			PythonLib methods which do not belong to some class within their
- *			library are sorted into a single PythonLib instance w/ that library
- *			name + class_name "global to library". STL methods which do not
- *			belong to some container are sorted into a single STL instance with
- *			the name "global to STL".
- *				ModernCpp has a container of strings for pros and a container of
- *			strings for cons. There's one ModernCpp instance for each modern c++
- *			programming technique (ex smart pointers,
- *			initialization-within-conditionals, etc).
+ *			PythonLib, and ModernCpp. Subclasses generally call the base
+ *			version of their method before following it up with their own
+ *			behavior based on derived needs.
  */
 
 
@@ -29,14 +17,25 @@
 Concept::Concept(void)
 	: name("NOT SET"), description("NOT SET") {}
 
+ostream& operator<<(ostream& out, const Concept& op2)
+{
+	//this is a rough draft for testing
+	out << "Concept \"" << op2.name << "\";\nDescription: "
+		<< op2.description << "\nWebsites:\n";
+	for (Website w: op2.websites){
+		out << w << '\n';
+	}
+	return out;
+}
+
 /*	PUBLIC METHODS	*/
 
-bool Concept::setup(bool name_set, bool desc_set, bool website_added)
+bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 {
-	//TODO
 	bool ret {true};
 	try{
 		if (! name_set){
+			cout << "Setting up a new Concept...\n"; //testing, will refine message to user
 			set_name();
 			name_set = true;
 		}
@@ -44,7 +43,7 @@ bool Concept::setup(bool name_set, bool desc_set, bool website_added)
 			set_description();
 			desc_set = true;
 		}
-		if (!website_added){
+		if (! site_added){
 			add_site();
 			site_added = true;
 		}
@@ -59,21 +58,63 @@ bool Concept::setup(bool name_set, bool desc_set, bool website_added)
 	catch (const char*& user_cancels){
 		//not strictly necessary... but useful info for debugging
 		//should I let the program be run with a -g flag? vargs easy to set up
-		*this = Method(); //reset and return
+		*this = Concept(); //reset and return
 		ret = false;
 	}
 
 	return ret;
 }
 
-void Concept::add_info(string _choice = "")
+void Concept::add(string _choice)
 {
-	//TODO
+	//TODO in progress
+	if (_choice == ""){
+		cout << "Would you like to add a {website}, or an{other} piece of "
+			 << "info?\n{!q} to cancel: ";
+		_choice = get_string(2);
+	}
+	if 		(_choice == "website")
+		add_site();
+	else if (_choice == "other")
+		throw out_of_range("User adds derived!");
 }
 
-void Concept::edit_info(string _choice = "")
+void Concept::edit(string _choice)
 {
-	//TODO
+	try{
+		if (_choice == ""){
+			cout << "Would you like to edit the"
+				 << " {name}, {description}, a {website},"
+				 << " or an{other} attribute?\n{!q} to cancel: ";
+			_choice = get_string(2);
+		}
+		if		(_choice == "name")
+			set_name();
+		else if (_choice == "description")
+			set_description();
+		else if (_choice == "website")
+			edit_site();
+		else if (_choice == "other")
+			throw out_of_range("User edits derived!"); //user wants to edit outside of base "range"
+		else{
+			disp_invalid_input(_choice);
+			edit();
+		}
+	}
+
+	catch (const invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		edit(_choice);
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		throw user_cancels; //throw again to inform derived method of cancel
+							//since base::edit should only be called
+							//from derived::edit... should this just be caught
+							//in derived::edit? TODO
+	}
+
+	return;
 }
 
 bool Concept::lookup(string& key)
@@ -85,17 +126,26 @@ bool Concept::lookup(string& key)
 
 void Concept::set_name(void)
 {
-	//TODO
+	//TODO test
+	cout << "Enter a name or {!q} to cancel: ";
+	name = get_string();		//may throw
 }
 
 void Concept::set_description(void)
 {
-	//TODO
+	//TODO test
+	cout << "Enter a description or {!q} to cancel: ";
+	description = get_string();	//may throw
 }
 
 void Concept::add_site(void)
 {
-	//TODO
+	//TODO test
+	Website new_site;
+	if (new_site.setup())
+		websites.push_back(new_site);
+	else //user cancelled
+		throw "User cancels!";
 }
 
 void Concept::edit_site(void)
@@ -134,8 +184,40 @@ class Concept: public Util
 };
 */
 
-/*			CLASS UTIL			*/
+/*			CLASS STL			*/
 /*	PUBLIC METHODS	*/
+
+// remember to catch the out_of_range when user wants to edit derived property
+void STL::edit(string _choice){
+	try{
+		//TODO in progress
+		this->Concept::edit(); //if this returns w/ no throws, user edited base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
+		edit_stl(); //call to derived edit function goes here
+	}
+
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
+	}
+}
+void STL::edit_stl(string _choice)
+{
+	try{
+		if (_choice == "")
+			;//body of derived edit w/prompts etc
+			//TODO in progress
+	}
+
+	catch (const invalid_argument& bad_input){ //case user provides bad input
+		disp_invalid_input((string) bad_input.what());
+		edit_stl(_choice);
+	}
+}
+
+
 /*	PRIVATE METHODS	*/
 
 /*
@@ -157,7 +239,7 @@ class STL
 };
 */
 
-/*			CLASS UTIL			*/
+/*			CLASS PYTHONLIB			*/
 /*	PUBLIC METHODS	*/
 /*	PRIVATE METHODS	*/
 
@@ -181,7 +263,7 @@ class PythonLib
 };
 */
 
-/*			CLASS UTIL			*/
+/*			CLASS MODERNCPP			*/
 /*	PUBLIC METHODS	*/
 /*	PRIVATE METHODS	*/
 
