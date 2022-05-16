@@ -50,7 +50,7 @@ Website::Website(void)
 
 ostream& operator<<(ostream& out, const Website& op2)
 {
-	cout << op2.url << " (rated " << op2.rating << " out of 10)\n"
+	cout << op2.url << " (rated " << op2.rating << " out of 10)\n\t"
 		 << op2.description;
 	return out;
 }
@@ -163,6 +163,15 @@ void Website::set_description(void)
 
 Method::Method(void)
 	: name("NOT SET"), description("NOT SET") {}
+
+bool Method::operator==(const Method& op2) const
+{
+	return name == op2.name;
+}
+bool Method::operator==(const string& op2) const
+{
+	return name == op2;
+}
 
 ostream& operator<<(ostream& out, const Method& op2)
 {

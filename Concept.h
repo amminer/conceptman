@@ -64,12 +64,11 @@ class Concept: public Util
 class STL: public Concept
 {
 	public:
-		STL(void);							//for use in client code
-		STL(string, string, string, int,
-			vector<Method>);				//for tests
+		//no constructors needed... I think?
+		friend ostream& operator<<(ostream& out, const STL& op2);
 
 		//need a unique derived method TODO
-		bool setup(bool = false);		//calls all private setters/1 of each adder
+		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
 		void add(string = "");		//add pro or con
 		void edit(string = "");		//edit pro or con
 		bool lookup(string&);		//partially match pros and cons
@@ -77,7 +76,9 @@ class STL: public Concept
 	private:
 		vector<Method> methods;
 
-		void edit_stl(string = ""); //called by edit as subroutine
+		void edit_stl(void); //called by edit as subroutine
+		void add_method(void);
+		void edit_method(void); //select a method and call its .edit()
 };
 
 /*	Each Python library class gets many PythonLib instances with the same base

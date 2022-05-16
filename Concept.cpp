@@ -20,10 +20,14 @@ Concept::Concept(void)
 ostream& operator<<(ostream& out, const Concept& op2)
 {
 	//this is a rough draft for testing
-	out << "Concept \"" << op2.name << "\";\nDescription: "
-		<< op2.description << "\nWebsites:\n";
-	for (Website w: op2.websites){
-		out << w << '\n';
+	out << '"' << op2.name << "\";\nDescription: "
+		<< op2.description << "\nWebsites:";
+	if (op2.websites.size() == 0)
+		cout << "No websites...";
+	else{
+		for (Website w: op2.websites){
+			out << '\n' << w;
+		}
 	}
 	return out;
 }
@@ -35,7 +39,6 @@ bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 	bool ret {true};
 	try{
 		if (! name_set){
-			cout << "Setting up a new Concept...\n"; //testing, will refine message to user
 			set_name();
 			name_set = true;
 		}
@@ -55,19 +58,20 @@ bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 		return setup(name_set, desc_set); //setup must be completed
 	}
 
+	/*
 	catch (const char*& user_cancels){
 		//not strictly necessary... but useful info for debugging
 		//should I let the program be run with a -g flag? vargs easy to set up
 		*this = Concept(); //reset and return
 		ret = false;
 	}
+	*/ //catch in derived
 
 	return ret;
 }
 
 void Concept::add(string _choice)
 {
-	//TODO in progress
 	if (_choice == ""){
 		cout << "Would you like to add a {website}, or an{other} piece of "
 			 << "info?\n{!q} to cancel: ";
@@ -107,12 +111,14 @@ void Concept::edit(string _choice)
 		edit(_choice);
 	}
 
+	/* catch in derived
 	catch (const char*& user_cancels){ //user entered !q
 		throw user_cancels; //throw again to inform derived method of cancel
 							//since base::edit should only be called
 							//from derived::edit... should this just be caught
-							//in derived::edit? TODO
+							//in derived::edit? ...Yes
 	}
+	*/
 
 	return;
 }
@@ -126,21 +132,18 @@ bool Concept::lookup(string& key)
 
 void Concept::set_name(void)
 {
-	//TODO test
 	cout << "Enter a name or {!q} to cancel: ";
 	name = get_string();		//may throw
 }
 
 void Concept::set_description(void)
 {
-	//TODO test
 	cout << "Enter a description or {!q} to cancel: ";
 	description = get_string();	//may throw
 }
 
 void Concept::add_site(void)
 {
-	//TODO test
 	Website new_site;
 	if (new_site.setup())
 		websites.push_back(new_site);
@@ -185,40 +188,129 @@ class Concept: public Util
 */
 
 /*			CLASS STL			*/
+
+ostream& operator<<(ostream& out, const STL& op2)
+{
+	//this is a rough draft for testing
+	out << "STL concept " << static_cast<const Concept&>(op2) << '\n';
+	out << "Methods:";
+	if (op2.methods.size() == 0)	//TODO may want a STL::display_methods subroutine
+		cout << "\nNo methods...";
+	else{
+		for (Method m: op2.methods){
+			cout << '\n' << m;
+		}
+	}
+	return out;
+}
+
 /*	PUBLIC METHODS	*/
 
-// remember to catch the out_of_range when user wants to edit derived property
+bool STL::setup(bool base_set_up, bool method_added)
+{
+	bool ret {true};
+	try{
+		if (! base_set_up){
+			cout << "Setting up a new STL...\n"; //testing, will refine message to user
+			ret = Concept::setup();
+			base_set_up = true;
+		}
+		if (! method_added){
+			add_method();
+			method_added = true;
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		return setup(base_set_up, method_added); //setup must be completed
+	}
+
+	catch (const char*& user_cancels){
+		//not strictly necessary... but useful info for debugging
+		//should I let the program be run with a -g flag? vargs easy to set up
+		*this = STL(); //reset and return
+		ret = false;
+	}
+
+	return ret;
+}
+
 void STL::edit(string _choice){
 	try{
-		//TODO in progress
-		this->Concept::edit(); //if this returns w/ no throws, user edited base
+		Concept::edit(); //if this returns w/ no throws, user edited base
 	}
 
 	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
 		edit_stl(); //call to derived edit function goes here
 	}
 
+	return;
+}
+
+void STL::add(string _choice) //choice prob unnecessary since only one thing to add TODO
+{
+	//TODO
+}
+
+bool STL::lookup(string& key)
+{
+	//TODO
+}
+
+/*	PRIVATE METHODS	*/
+
+void STL::edit_stl(void)
+{
+	try{
+		edit_method(); //no need to do UI things since there is only one option
+	}
 
 	catch (const char*& user_cancels){ //user entered !q
 		;
 	}
+
+	return;
 }
-void STL::edit_stl(string _choice)
+
+void STL::edit_method(void)
 {
-	try{
-		if (_choice == "")
-			;//body of derived edit w/prompts etc
-			//TODO in progress
+	string _choice;
+	bool match {false};
+	switch (methods.size()){
+		case 0:
+			cout << "No methods to edit!\n";
+			break;
+		case 1:
+			methods.at(0).edit();
+			break;
+		default:
+			for (Method m: methods)
+				cout << m << '\n';
+			cout << "Which method would you like to edit? {!q to cancel}: ";
+			_choice = get_string();
+			for (Method m: methods){
+				if (m == _choice){
+					m.edit();
+					match = true;
+				}
+			}
+			if (!match)
+				cout << "No such method!\n";
 	}
-
-	catch (const invalid_argument& bad_input){ //case user provides bad input
-		disp_invalid_input((string) bad_input.what());
-		edit_stl(_choice);
-	}
+	return;
 }
 
-
-/*	PRIVATE METHODS	*/
+void STL::add_method(void)
+{
+	Method new_method;
+	if (new_method.setup())
+		methods.push_back(new_method);
+	else //user cancelled
+		;
+	return;
+}
 
 /*
 class STL

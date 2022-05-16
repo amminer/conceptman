@@ -30,9 +30,12 @@ using namespace std;
 class Util //contains basic IO behaviors needed by other classes
 {
 	public:
+		//THROWS CONST CHAR* ON "-1" INPUT
 		int get_int(const int = 0, const int = INT_MAX) const;
-		string get_string(const int = 1,
+		//THROWS CONST CHAR* ON "!q" INPUT
+		string get_string(const int = 1,				
 						  const int = 100000) const;	//arbitrary max
+		//pass const char*s to this to display to user
 		void disp_invalid_input(const string) const;
 };
 
@@ -71,6 +74,8 @@ class Method: public Util
 	public:
 		Method();
 
+		bool operator==(const Method& op2) const;
+		bool operator==(const string& op2) const;
 		friend ostream& operator<<(ostream&, const Method&);
 
 		bool setup(bool = false, bool = false);	//calls all private setters
