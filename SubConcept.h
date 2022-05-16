@@ -82,5 +82,5 @@ class Method: public Util
 
 		string name;
 		string description;
-		//strikingly similar to class concept - could concept inherit from method?
+		//strikingly similar to concept - could concept inherit from method?
 };

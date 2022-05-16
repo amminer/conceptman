@@ -15,12 +15,12 @@
  *			which belong to the container indicated by STL.name or the class
  *			indicated by PythonLib.class_name within the library PythonLib.name.
  *			PythonLib methods which do not belong to some class within their
- *			library are sorted into a single PythonLib instance with that library
+ *			library are sorted into a single PythonLib instance w/ that library
  *			name + class_name "global to library". STL methods which do not
  *			belong to some container are sorted into a single STL instance with
  *			the name "global to STL".
  *				ModernCpp has a container of strings for pros and a container of
- *			strings for cons. There is one ModernCpp instance for each modern c++
+ *			strings for cons. There's one ModernCpp instance for each modern c++
  *			programming technique (ex smart pointers,
  *			initialization-within-conditionals, etc).
  */
@@ -39,7 +39,7 @@ class Concept: public Util
 		virtual void edit_info(string = "");
 		virtual bool lookup(string&);	//pure virtual seems appropriate?
 		//string arg of lookup used to search for STL method or PythonLib class 
-		//or method by name, or search for a pros/cons of a ModernCpp by keyword.
+		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
 	private:
 		string name;
