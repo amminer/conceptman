@@ -47,6 +47,8 @@ class Website: public Util
 	public:
 		Website();
 
+		bool operator==(const Website& op2);
+		bool operator==(const string& op2);
 		friend ostream& operator<<(ostream&, const Website&);
 
 		//calls all private validators, true on success

@@ -13,7 +13,6 @@
 
 /*			CLASS CONCEPT			*/
 
-//vector needs initialization? TODO check in gdb
 Concept::Concept(void)
 	: name("NOT SET"), description("NOT SET") {}
 
@@ -58,8 +57,8 @@ bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 		return setup(name_set, desc_set); //setup must be completed
 	}
 
-	/*
-	catch (const char*& user_cancels){
+	/* concept is never instantiated, catch this in derived class;best option?
+	catch (const char*& user_cancels){								//todo
 		//not strictly necessary... but useful info for debugging
 		//should I let the program be run with a -g flag? vargs easy to set up
 		*this = Concept(); //reset and return
@@ -111,7 +110,7 @@ void Concept::edit(string _choice)
 		edit(_choice);
 	}
 
-	/* catch in derived
+	/* catch in derived; could change, is this the best way? todo
 	catch (const char*& user_cancels){ //user entered !q
 		throw user_cancels; //throw again to inform derived method of cancel
 							//since base::edit should only be called
@@ -121,11 +120,6 @@ void Concept::edit(string _choice)
 	*/
 
 	return;
-}
-
-bool Concept::lookup(string& key)
-{
-	//TODO
 }
 
 /*	PRIVATE METHODS	*/
@@ -153,7 +147,31 @@ void Concept::add_site(void)
 
 void Concept::edit_site(void)
 {
-	//TODO
+	//TODO could edit_method borrow from this somehow?
+	string _choice;
+	bool match {false};
+	switch (websites.size()){
+		case 0:
+			cout << "No websites to edit!\n";
+			break;
+		case 1:
+			websites.at(0).edit();
+			break;
+		default:
+			for (Website w: websites)
+				cout << w << '\n';
+			cout << "Which website would you like to edit? {!q to cancel}: ";
+			_choice = get_string();
+			for (Website w: websites){
+				if (w == _choice){
+					w.edit();
+					match = true;
+				}
+			}
+			if (!match)
+				cout << "No such website!\n";
+	}
+	return;
 }
 
 /*
@@ -194,8 +212,8 @@ ostream& operator<<(ostream& out, const STL& op2)
 	//this is a rough draft for testing
 	out << "STL concept " << static_cast<const Concept&>(op2) << '\n';
 	out << "Methods:";
-	if (op2.methods.size() == 0)	//TODO may want a STL::display_methods subroutine
-		cout << "\nNo methods...";
+	if (op2.methods.size() == 0)	//todo may want a STL::display_methods subroutine
+		cout << "\nNo methods...";  //can I just cout << vector ?
 	else{
 		for (Method m: op2.methods){
 			cout << '\n' << m;
@@ -215,7 +233,7 @@ bool STL::setup(bool base_set_up, bool method_added)
 			ret = Concept::setup();
 			base_set_up = true;
 		}
-		if (! method_added){
+		if (! method_added){ //and ret) could maybe allow catching char* in base? todo
 			add_method();
 			method_added = true;
 		}
@@ -254,10 +272,12 @@ void STL::add(string _choice) //choice prob unnecessary since only one thing to 
 	//TODO
 }
 
+
 bool STL::lookup(string& key)
 {
 	//TODO
 }
+
 
 /*	PRIVATE METHODS	*/
 
@@ -308,7 +328,7 @@ void STL::add_method(void)
 	if (new_method.setup())
 		methods.push_back(new_method);
 	else //user cancelled
-		;
+		; //should I be catching the const char* here?
 	return;
 }
 
@@ -333,7 +353,15 @@ class STL
 
 /*			CLASS PYTHONLIB			*/
 /*	PUBLIC METHODS	*/
+
+bool PythonLib::lookup(string& key)
+{
+	//TODO
+}
+
 /*	PRIVATE METHODS	*/
+
+
 
 /*
 class PythonLib
@@ -358,6 +386,11 @@ class PythonLib
 /*			CLASS MODERNCPP			*/
 /*	PUBLIC METHODS	*/
 /*	PRIVATE METHODS	*/
+
+bool ModernCpp::lookup(string& key)
+{
+	//TODO
+}
 
 /*
 class ModernCpp

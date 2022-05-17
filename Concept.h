@@ -10,7 +10,7 @@
  *			one base class Concept and three derived classes STL,
  *			PythonLib, and ModernCpp. Each class has a self similar
  *			interface with the exception of one function per derived
- *			class.
+ *			class. Concept is an abstract base class (ABC).
  *				PythonLib and STL objects contain a collection of methods,
  *			which belong to the container indicated by STL.name or the class
  *			indicated by PythonLib.class_name within the library PythonLib.name.
@@ -25,7 +25,7 @@
  *			initialization-within-conditionals, etc).
  */
 
-class Concept: public Util
+class Concept: public Util	//ABC
 {
 	public:
 		Concept(void);
@@ -40,7 +40,7 @@ class Concept: public Util
 		//edit website, method, pro or con
 		virtual void edit(string = "");
 		//lookup website, method, pro or con
-		virtual bool lookup(string&);
+		virtual bool lookup(string&)=0;	//pure virtual//ABC
 		//string arg of lookup used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
@@ -64,14 +64,14 @@ class Concept: public Util
 class STL: public Concept
 {
 	public:
-		//no constructors needed... I think?
+		//default constructor acceptable?
 		friend ostream& operator<<(ostream& out, const STL& op2);
 
 		//need a unique derived method TODO
 		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
-		void add(string = "");		//add pro or con
-		void edit(string = "");		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
+		void add(string = "");		//add method
+		void edit(string = "");		//edit method
+		bool lookup(string&);		//partially match method names and descriptions
 
 	private:
 		vector<Method> methods;
@@ -96,9 +96,9 @@ class PythonLib: public Concept
 
 		//need a unique derived method TODO
 		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
-		void add_info(string = "");		//add pro or con
-		void edit_info(string = "");		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
+		void add_info(string = "");			//add method
+		void edit_info(string = "");		//edit method, class name
+		bool lookup(string&);		//partially match classes and methods by name or desc
 
 	private:
 		string class_name;
@@ -116,13 +116,12 @@ class PythonLib: public Concept
 class ModernCpp: public Concept
 {
 	public:
-		ModernCpp(void);
-		ModernCpp(string, string, string, int, vector<Method>); //for tests
+		//default constructor acceptable?
 
 		string check_applicability(string&); //returns all pros and cons from
 										//any ModernCpp instance if they contain
-										//the string arg, concatenating them and
-										//printing them.
+										//the string arg, concatenating them with
+										//double-newlines separating
 		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
 		void add(string = "");		//add pro or con
 		void edit(string = "");		//edit pro or con

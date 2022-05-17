@@ -48,6 +48,16 @@ void Util::disp_invalid_input(const string bad_input) const
 Website::Website(void)
 	: url("NOT SET"), rating(-1) {}
 
+bool Website::operator==(const Website& op2)
+{
+	return url == op2.url; //TODO partial matching
+}
+
+bool Website::operator==(const string& op2)
+{
+	return url == op2; //TODO partial matching
+}
+
 ostream& operator<<(ostream& out, const Website& op2)
 {
 	cout << op2.url << " (rated " << op2.rating << " out of 10)\n\t"
@@ -82,10 +92,12 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 		return setup(url_set, desc_set, rating_set); //setup must be completed
 	}
 
+	/* Continue passing cancel signal up to client class
 	catch (const char*& user_cancels){
 		*this = Website(); //reset and return
 		ret = false;
 	}
+	*/
 
 	return ret;
 }
@@ -115,9 +127,11 @@ void Website::edit(string _choice)
 		edit(_choice);
 	}
 
+	/* Continue passing cancel signal up to client class
 	catch (const char*& user_cancels){ //user entered !q
 		; //do nothing and return (don't want to erase existing data)
 	}
+	*/
 
 	return;
 }
@@ -203,10 +217,12 @@ bool Method::setup(bool name_set, bool desc_set)
 		return setup(name_set, desc_set); //setup must be completed
 	}
 
+	/*	continue passing cancel signal up to class calling setup
 	catch (const char*& user_cancels){
 		*this = Method(); //reset and return
 		ret = false;
 	}
+	*/
 
 	return ret;
 }
@@ -234,9 +250,11 @@ void Method::edit(string _choice)
 		edit(_choice);
 	}
 
+	/*	continue passing cancel signal up to client class
 	catch (const char*& user_cancels){ //user entered !q
 		; //do nothing and return (don't want to erase existing data)
 	}
+	*/
 
 	return;
 }

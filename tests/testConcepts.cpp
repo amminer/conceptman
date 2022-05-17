@@ -1,13 +1,41 @@
 #include "../Concept.h"
 
-int main(void)
+void testSTL(void)
 {
+	//TODO in progress
 	STL c;
-	if (c.setup())
+	string _choice;
+	if (c.setup()){
 		cout << '\n' << c << '\n';
+		cout << "Edit {y or anything else}?: ";
+		getline(cin, _choice);
+		if (_choice == "y"){
+			c.edit();
+			cout << '\n' << c << '\n';
+		}
+	}
 	else
 		cout << "User canceled setup!\n";
 
-	//bit more work to do before a full test script can be written
-	//please take a look at testWebsite.cpp and testMethod.cpp to see where this is going
+}
+
+void testModernCpp(void)
+{
+	//TODO
+}
+
+void testPythonLib(void)
+{
+	//TODO
+}
+
+Concept* testPolymorphism(void)
+{
+	//TODO
+}
+
+int main(void)
+{
+	testSTL();
+	return 0;
 }
