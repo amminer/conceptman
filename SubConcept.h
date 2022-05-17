@@ -29,7 +29,7 @@ using namespace std;
 
 class Util //contains basic IO behaviors needed by other classes
 {
-	public:
+	public: //wanted to make these static but prefer to keep const
 		//THROWS CONST CHAR* ON "-1" INPUT
 		int get_int(const int = 0, const int = INT_MAX) const;
 		//THROWS CONST CHAR* ON "!q" INPUT

@@ -204,7 +204,7 @@ void Concept::edit_site(void)
 	return;
 }
 
-/*			CLASS STL			*/ //TODO mostly complete
+/*			CLASS STL			*/ //TODO still need diff interface'd method
 
 /*	PUBLIC METHODS	*/
 
@@ -286,8 +286,6 @@ void STL::add(string _choice)
 
 bool STL::contains(string& key)
 {
-	//TODO partially match method name/desc
-	//IN PROG
 	bool ret = false;
 	for (Method& m: methods){
 		if (m.get_name().find(key) != string::npos){
@@ -297,8 +295,6 @@ bool STL::contains(string& key)
 	}
 	return ret;
 }
-
-//need a unique derived method TODO
 
 /*	PRIVATE METHODS	*/
 

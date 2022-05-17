@@ -5,7 +5,8 @@ void testPolymorphismAndMutation(Concept* c)
 	string _choice;
 	bool cont{true};
 	while (cont){
-		cout << "\n{edit} {add} or {remove} properties, {goto} website, or {!q} to quit: ";
+		cout << "\n{edit} {add} or {remove} properties, {goto} website,\n"
+		   << "test whether the concept {contains} a string, or {!q} to quit: ";
 		getline(cin, _choice);
 		if (_choice == "edit")
 			c->edit();
@@ -15,6 +16,14 @@ void testPolymorphismAndMutation(Concept* c)
 			cout << "Not yet implemented :P\n";
 		else if (_choice == "goto")
 			c->select_site();
+		else if (_choice == "contains"){
+			cout << "Enter a keyword: ";
+			getline(cin, _choice);
+			if (c->contains(_choice))
+				cout << "Contains!\n";
+			else
+				cout << "Does not contain!\n";
+		}
 		else if (_choice == "!q")
 			cont = false;
 		if (cont)
