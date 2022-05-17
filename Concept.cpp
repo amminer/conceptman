@@ -28,16 +28,23 @@ ostream& operator<<(ostream& out, const Concept& op2)
 void Concept::select_site(void)	const //demanded by spec for some reason
 {
 	int _choice {-2};
-	cout << "Which site would you like to select, by its number?: ";
+	cout << "Which website would you like to select,\n"
+		 << " by its number? {-1 to cancel}: ";
 	try{
 		_choice = get_int(1, websites.size());
-		cout << "Selected:\n" << websites.at(_choice - 1).get_url() << '\n';
+		//very inefficient to iterate over a set... but we need ordered unique
+		cout << "Selected:\n" << next(websites.begin(), _choice-1)->get_url()
+			 << '\n';
 	}
 
 	catch (invalid_argument& bad_input){
 		disp_invalid_input((string) bad_input.what());
 		cout << "Please try again.\n";
 		select_site();
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
 	}
 
 	return;
@@ -169,37 +176,52 @@ void Concept::add_site(void)
 {
 	Website new_site;
 	if (new_site.setup())
-		websites.push_back(new_site);
+		websites.insert(new_site);
 	else //user cancelled
 		throw "User cancels!";
 }
 
 void Concept::edit_site(void)
 {
-	//todo could edit_method borrow from this somehow?
 	string _choice;
+	set<Website>::iterator to_edit {websites.begin()}; //set->const iterator
+	Website new_site;				//enables editing by reinserting edited
 	bool match {false};
 	switch (websites.size()){
 		case 0:
 			cout << "No websites to edit!\n";
 			break;
 		case 1:
-			cout << "Editing \"" << websites.at(0).get_url() << "\"...\n";
-			websites.at(0).edit();
+			cout << "Editing \"" << to_edit->get_url() << "\"...\n";
+			new_site = *to_edit;
+			new_site.edit(); //if user cancels, execution proceeds w/o edits...
+			if (websites.find(new_site) == websites.end()){
+				websites.erase(to_edit);
+				websites.insert(new_site);
+			}
 			break;
 		default:
-			for (Website& w: websites)
-				cout << w << '\n';
 			cout << "Which website would you like to edit? {!q to cancel}: ";
 			_choice = get_string();
-			for (Website& w: websites){
+			for (const Website& w: websites){
 				if (w == _choice){
-					w.edit();
 					match = true;
+					new_site = w;
+					new_site.edit(); //if user cancels, execution proceeds
+					if (websites.find(new_site) == websites.end()){
+						websites.erase(to_edit);
+						websites.insert(new_site);
+					}
+					break; //is this ok?
 				}
+				else
+					advance(to_edit, 1);
 			}
-			if (!match)
+			if (!match){
 				cout << "No such website!\n";
+				edit_site();
+			}
+			break;
 	}
 	return;
 }
@@ -211,14 +233,15 @@ void Concept::edit_site(void)
 void STL::display(ostream& out) const
 {
 	//this is a rough draft for testing
+	size_t count {0};
 	out << "STL concept ";
 	Concept::display(out); //name, desc, websites handled here
 	out << "\nMethods:";//go on to handle derived
 	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
-		cout << "\nNo methods...";  //...can I just cout << vector ?
+		out << "\nNo methods...";  //...can I just cout << set ?
 	else{
 		for (const Method& m: methods){
-			cout << '\n' << m;
+			out << '\n' << ++count << ": " << m;
 		}
 	}
 }
@@ -284,10 +307,10 @@ void STL::add(string _choice)
 }
 
 
-bool STL::contains(string& key)
+bool STL::contains(string& key) const
 {
 	bool ret = false;
-	for (Method& m: methods){
+	for (const Method& m: methods){
 		if (m.get_name().find(key) != string::npos){
 			ret = true;
 			break; //is this ok to use here?
@@ -315,25 +338,38 @@ void STL::edit_stl(void)
 void STL::edit_method(void)
 {
 	string _choice;
+	set<Method>::iterator to_edit {methods.begin()}; //set->const iterator
+	Method new_method;
 	bool match {false};
 	switch (methods.size()){
 		case 0:
 			cout << "No methods to edit!\n";
 			break;
 		case 1:
-			cout << "Editing method \"" << methods.at(0).get_name() << "\"...\n";
-			methods.at(0).edit();
-			break;
+			cout << "Editing \"" << to_edit->get_name() << "\"...\n";
+			new_method = *to_edit;
+			new_method.edit(); //if user cancels, copy is reinserted
+			if (methods.find(new_method) == methods.end()){
+				methods.erase(to_edit); //what if user changes name to an existing one?
+				methods.insert(new_method); //set will reject insert silently...
+			}
+			break;						//and user will lose the one they edited. TODO
 		default:
-			for (Method& m: methods)
-				cout << m << '\n';
 			cout << "Which method would you like to edit? {!q to cancel}: ";
 			_choice = get_string();
-			for (Method& m: methods){
+			for (const Method& m: methods){
 				if (m == _choice){
-					m.edit();
 					match = true;
+					new_method = m;
+					new_method.edit();
+					if (methods.find(new_method) == methods.end()){
+						methods.erase(to_edit);
+						methods.insert(new_method);
+					}
+					break; //is this ok?
 				}
+				else
+					advance(to_edit, 1);
 			}
 			if (!match){
 				cout << "No such method!\n";
@@ -348,16 +384,55 @@ void STL::add_method(void)
 {
 	Method new_method;
 	if (new_method.setup())
-		methods.push_back(new_method);
+		methods.insert(new_method);
 	else //user cancelled
 		; //char* will be caught in add()
 	return;
 }
 
+
+
+
 /*			CLASS PYTHONLIB			*/ //TODO not started
+
+bool PythonLib::operator<(const PythonLib& op2)
+{
+	return class_name < op2.class_name; //unsure TODO
+}
+
 /*	PUBLIC METHODS	*/
 
-bool PythonLib::contains(string& key)
+void PythonLib::display(ostream& out) const
+{
+	//this is a rough draft for testing
+	out << "Python Library ";
+	Concept::display(out); //name, desc, websites handled here
+	out << "\nMethods:";//go on to handle derived
+	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
+		cout << "\nNo methods...";  //...can I just cout << set ?
+	else{
+		for (const Method& m: methods){
+			cout << '\n' << m;
+		}
+	}
+}
+
+bool PythonLib::setup(bool class_name_set, bool method_added)
+{
+	//TODO
+}
+
+void PythonLib::add(string _choice)
+{
+	//TODO
+}
+
+void PythonLib::edit(string _choice)
+{
+	//TODO
+}
+
+bool PythonLib::contains(string& key) const
 {
 	//TODO partially match class, lib, or meth name/desc
 }
@@ -368,31 +443,13 @@ bool PythonLib::contains(string& key)
 
 
 
-/*
-class PythonLib
-{
-	public:
-		PythonLib(void);						//for use in client code
-		PythonLib(string, string, string, int,
-				  string, vector<Method>);		//for tests
-
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
-		bool contains(string&);		//partially match pros and cons
-
-	private:
-		string class_name;
-		vector<Method> methods;
-};
-*/
 
 /*			CLASS MODERNCPP			*/ //TODO not started
 /*	PUBLIC METHODS	*/
 
 /*	PRIVATE METHODS	*/
 
-bool ModernCpp::contains(string& key)
+bool ModernCpp::contains(string& key) const
 {
 	//TODO partially match pro or con or name or desc
 }
@@ -401,25 +458,3 @@ string ModernCpp::check_applicability(string&) //cats partial matches
 {
 	//TODO
 }
-
-/*
-class ModernCpp
-{
-	public:
-		ModernCpp(void);
-		ModernCpp(string, string, string, int, vector<Method>); //for tests
-
-		string check_applicability(string&); //returns all pros and cons from
-										//any ModernCpp instance if they contain
-										//the string arg, concatenating them and
-										//printing them.
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
-		bool contains(string&);		//partially match pros and cons
-
-	private:
-		vector<string> pros;
-		vector<string> cons;
-};
-*/

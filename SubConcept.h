@@ -47,8 +47,9 @@ class Website: public Util
 	public:
 		Website();
 
-		bool operator==(const Website& op2);
-		bool operator==(const string& op2);
+		bool operator< (const Website& op2) const;
+		bool operator==(const Website& op2) const;
+		bool operator==(const string& op2) const;
 		friend ostream& operator<<(ostream&, const Website&);
 
 		//calls all private validators, true on success
@@ -77,13 +78,14 @@ class Method: public Util
 	public:
 		Method();
 
+		bool operator< (const Method& op2) const;
 		bool operator==(const Method& op2) const;
 		bool operator==(const string& op2) const;
 		friend ostream& operator<<(ostream&, const Method&);
 
 		bool setup(bool = false, bool = false);	//calls all private setters
 		void edit(string = "");	//user chooses to set name or description
-		string& get_name(void);
+		const string& get_name(void) const;
 
 	private:
 		void set_name();			//min len 1

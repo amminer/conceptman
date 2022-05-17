@@ -48,12 +48,17 @@ void Util::disp_invalid_input(const string bad_input) const
 Website::Website(void)
 	: url("NOT SET"), rating(-1) {}
 
-bool Website::operator==(const Website& op2)
+bool Website::operator<(const Website& op2) const
+{
+	return url < op2.url;
+}
+
+bool Website::operator==(const Website& op2) const
 {
 	return url == op2.url; //TODO partial matching
 }
 
-bool Website::operator==(const string& op2)
+bool Website::operator==(const string& op2) const
 {
 	return url == op2; //TODO partial matching
 }
@@ -183,6 +188,11 @@ void Website::set_description(void)
 Method::Method(void)
 	: name("NOT SET"), description("NOT SET") {}
 
+bool Method::operator<(const Method& op2) const
+{
+	return name < op2.name;
+}
+
 bool Method::operator==(const Method& op2) const
 {
 	return name == op2.name;
@@ -264,7 +274,7 @@ void Method::edit(string _choice)
 	return;
 }
 
-string& Method::get_name(void)
+const string& Method::get_name(void) const
 {
 	return name;
 }

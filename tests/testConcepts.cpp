@@ -1,4 +1,13 @@
 #include "../Concept.h"
+//NOTE! TODO
+// Should indicate to user in a {help} message that attempting to add a site
+//	with a duplicate URL or a method with a duplicate name will be silently
+//	rejected, and no addition will occur.
+// Further, if an edit is made that would cause the edited item to take the
+//	url or name of an existing item, the edit is silently rejected and the
+//	state of the program is not changed.
+// Could maybe present this as a warning whenever this occurs, but haven't
+//	figured out a way to do this cleanly yet...
 
 void testPolymorphismAndMutation(Concept* c)
 {

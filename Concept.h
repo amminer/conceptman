@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SubConcept.h"
-#include <vector>
+#include <set>
+#include <iterator>
 
 /*	Amelia Miner				5/12/2022
  *	cs202, section 003
@@ -42,15 +43,15 @@ class Concept: public Util	//ABC
 		//edit website, method, pro or con
 		virtual void edit(string = "");
 		//contains website, method, pro or con
-		virtual bool contains(string&)=0;	//pure virtual//ABC
+		virtual bool contains(string&) const =0;	//pure virtual//ABC
 		//string arg used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
 	private:
 		string name;
 		string description;
- 		//vector preferred for fast random access?
-		vector<Website> websites; //vector best for prioritizing lookup speed?
+ 		//set preferred for fast random access?
+		set<Website> websites; //set best for prioritizing lookup speed?
 
 		//Called by UI functions, validate input, throw exceptions
 		void set_name(void);
@@ -74,10 +75,10 @@ class STL: public Concept
 		//sticking w/ public interface pattern but no unused _choice args
 		virtual void add(string = "");								//add method
 		virtual void edit(string = "");							   //edit method
-		virtual bool contains(string&); 	  //partially match method name/desc
+		virtual bool contains(string&) const; 	  //partially match method name/desc
 
 	private:
-		vector<Method> methods;
+		set<Method> methods;
 
 		void add_stl(void);	 //wrappers kept in for extensibility/uniformity
 		void edit_stl(void); //called by edit as subroutinue
@@ -96,17 +97,20 @@ class PythonLib: public Concept
 	public:
 		PythonLib(void);						//for use in client code
 		PythonLib(string, string, string, int,
-				  string, vector<Method>);		//for tests
+				  string, set<Method>);		//for tests
+
+		bool operator<(const PythonLib& op2);
 
 		//need a unique derived method TODO
+		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false);   //calls setters/adders
 		virtual void add(string = "");							    //add method
 		virtual void edit(string = "");				   //edit method, class name
-		virtual bool contains(string&); 	//partial match class/meth name/desc
+		virtual bool contains(string&) const; 	//partial match class/meth name/desc
 
 	private:
 		string class_name;
-		vector<Method> methods;
+		set<Method> methods;
 
 		void edit_pythonlib(void); //called by edit as subroutine
 		void set_class_name(void);
@@ -126,14 +130,15 @@ class ModernCpp: public Concept
 										//any ModernCpp instance if they contain
 										//the string arg+concatenating them with
 										//double-newlines as separators
+		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
 		virtual void add(string = "");							//add pro or con
 		virtual void edit(string = "");						   //edit pro or con
-		virtual bool contains(string&);			 //partially match pros and cons
+		virtual bool contains(string&) const;			 //partially match pros and cons
 
 	private:
-		vector<string> pros;
-		vector<string> cons;
+		set<string> pros;
+		set<string> cons;
 
 		void edit_moderncpp(void); //called by edit as subroutine
 		void add_pro_or_con(void);
