@@ -147,7 +147,7 @@ void Concept::add_site(void)
 
 void Concept::edit_site(void)
 {
-	//TODO could edit_method borrow from this somehow?
+	//todo could edit_method borrow from this somehow?
 	string _choice;
 	bool match {false};
 	switch (websites.size()){
@@ -174,38 +174,7 @@ void Concept::edit_site(void)
 	return;
 }
 
-/*
-class Concept: public Util
-{
-	public:
-		Concept(void);
-		virtual ~Concept(void);
-
-		//calls all private setters/1 of each adder
-		virtual bool setup(bool = false, bool = false, bool = false); 
-		//add website, method, pro or con
-		virtual void add_info(string = "");
-		//edit website, method, pro or con
-		virtual void edit_info(string = "");
-		virtual bool lookup(string&);	//pure virtual seems appropriate?
-		//string arg of lookup used to search for STL method or PythonLib class 
-		//or method by name, or search for a pros/cons of a ModernCpp by keyword
-
-	private:
-		string name;
-		string description;
- 		//vector preferred for fast random access?
-		vector<Website> websites; //vector best for prioritizing lookup speed?
-
-		//Called by UI functions, validate input, throw exceptions
-		void set_name(void);
-		void set_description(void);
-		void add_site(void);
-		void edit_site(void);			//calls public Website::edit method
-};
-*/
-
-/*			CLASS STL			*/
+/*			CLASS STL			*/ //TODO mostly complete
 
 ostream& operator<<(ostream& out, const STL& op2)
 {
@@ -267,7 +236,7 @@ void STL::edit(string _choice){
 	return;
 }
 
-void STL::add(string _choice) //choice prob unnecessary since only one thing to add TODO
+void STL::add(string _choice) //choice prob unnecessary since only one thing to add todo
 {
 	//TODO
 }
@@ -278,6 +247,7 @@ bool STL::lookup(string& key)
 	//TODO
 }
 
+//need a unique derived method TODO
 
 /*	PRIVATE METHODS	*/
 
@@ -332,32 +302,15 @@ void STL::add_method(void)
 	return;
 }
 
-/*
-class STL
-{
-	public:
-		STL(void);							//for use in client code
-		STL(string, string, string, int,
-			vector<Method>);				//for tests
-
-		//need a unique derived method TODO
-		bool setup(void);		//calls all private setters/1 of each adder
-		void add_info(void);		//add pro or con
-		void edit_info(void);		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
-
-	private:
-		vector<Method> methods;
-};
-*/
-
-/*			CLASS PYTHONLIB			*/
+/*			CLASS PYTHONLIB			*/ //TODO not started
 /*	PUBLIC METHODS	*/
 
 bool PythonLib::lookup(string& key)
 {
 	//TODO
 }
+
+//need a unique derived method TODO
 
 /*	PRIVATE METHODS	*/
 
@@ -371,7 +324,6 @@ class PythonLib
 		PythonLib(string, string, string, int,
 				  string, vector<Method>);		//for tests
 
-		//need a unique derived method TODO
 		bool setup(void);		//calls all private setters/1 of each adder
 		void add_info(void);		//add pro or con
 		void edit_info(void);		//edit pro or con
@@ -383,11 +335,17 @@ class PythonLib
 };
 */
 
-/*			CLASS MODERNCPP			*/
+/*			CLASS MODERNCPP			*/ //TODO not started
 /*	PUBLIC METHODS	*/
+
 /*	PRIVATE METHODS	*/
 
 bool ModernCpp::lookup(string& key)
+{
+	//TODO
+}
+
+string ModernCpp::check_applicability(string&) //cats partial matches
 {
 	//TODO
 }
