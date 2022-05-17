@@ -32,6 +32,8 @@ class Concept: public Util	//ABC
 		Concept(void);
 		//virtual ~Concept(void);
 
+		bool operator< (const Concept& op2) const;
+		bool operator==(const Concept& op2) const;
 		friend ostream& operator<<(ostream& out, const Concept& op2);
 
 		void select_site(void) const;	//demanded by spec for some reason
@@ -42,13 +44,17 @@ class Concept: public Util	//ABC
 		virtual void add(string = "");
 		//edit website, method, pro or con
 		virtual void edit(string = "");
+		//remove website, method, pro, or con
+		virtual void remove(string = "");
 		//contains website, method, pro or con
 		virtual bool contains(string&) const =0;	//pure virtual//ABC
 		//string arg used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
+	protected:
+		string name; //must be protected to access from derived operators
+
 	private:
-		string name;
 		string description;
  		//set preferred for fast random access?
 		set<Website> websites; //set best for prioritizing lookup speed?
@@ -58,11 +64,13 @@ class Concept: public Util	//ABC
 		void set_description(void);
 		void add_site(void);
 		void edit_site(void);			//calls public Website::edit method
+		void remove_site(void);
 };
 
 /*	Each STL container class gets one STL object instance, and there is one
  * STL instance for holding any STL methods that do not belong to a container
  * (such as std::min_element)
+ *	SHOULD BE UNIQUE BASED ON name FIELD IN CLIENT CODE (operator==)
  */
 class STL: public Concept
 {
@@ -72,54 +80,61 @@ class STL: public Concept
 		//need a unique derived method TODO
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
-		//sticking w/ public interface pattern but no unused _choice args
 		virtual void add(string = "");								//add method
 		virtual void edit(string = "");							   //edit method
-		virtual bool contains(string&) const; 	  //partially match method name/desc
+		virtual void remove(string = "");						 //remove method
+		virtual bool contains(string&) const; //partially match method name/desc
 
 	private:
 		set<Method> methods;
 
-		void add_stl(void);	 //wrappers kept in for extensibility/uniformity
-		void edit_stl(void); //called by edit as subroutinue
+		void add_stl(void);	 	//wrappers kept in for extensibility/uniformity
+		void edit_stl(void); 	//called by edit as subroutinue
+		void remove_stl(void);
 		void add_method(void);
 		void edit_method(void); //select a method and call its .edit()
+		void remove_method(void);
 };
 
 /*	Each Python library class gets many PythonLib instances with the same base
  * name field denoting the library name, with one instance per library class
  * containing the methods of that class (such as Pandas.DataFrame), plus one
  * instance to hold all library methods not belonging to any particular class
- * whose class_name string is "global to library"
+ * whose class_name string is "global to library".
+ *	SHOULD BE UNIQUE BASED ON class_name FIELD IN CLIENT CODE (operator==)
  */
 class PythonLib: public Concept
 {
 	public:
-		PythonLib(void);						//for use in client code
-		PythonLib(string, string, string, int,
-				  string, set<Method>);		//for tests
+		//default constructor works
 
-		bool operator<(const PythonLib& op2);
+		bool operator< (const PythonLib& op2) const;
+		bool operator==(const PythonLib& op2) const;
 
 		//need a unique derived method TODO
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false);   //calls setters/adders
 		virtual void add(string = "");							    //add method
 		virtual void edit(string = "");				   //edit method, class name
-		virtual bool contains(string&) const; 	//partial match class/meth name/desc
+		virtual void remove(string = "");						 //remove method
+		virtual bool contains(string&) const; //part. match class/meth name/desc
 
 	private:
 		string class_name;
 		set<Method> methods;
 
-		void edit_pythonlib(void); //called by edit as subroutine
 		void set_class_name(void);
+		void add_pythonlib(void);
+		void edit_pythonlib(void); //called by edit as subroutine
+		void remove_pythonlib(void);
 		void add_method(void);
 		void edit_method(void);
+		void remove_method(void);
 };
 
 /*	Each modern c++ technique gets one ModernCpp instance, with a container of
  * strings for pros and cons of that technique.
+ *	SHOULD BE UNIQUE BASED ON name FIELD IN CLIENT CODE (operator==)
  */
 class ModernCpp: public Concept
 {
@@ -134,7 +149,8 @@ class ModernCpp: public Concept
 		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
 		virtual void add(string = "");							//add pro or con
 		virtual void edit(string = "");						   //edit pro or con
-		virtual bool contains(string&) const;			 //partially match pros and cons
+		virtual void remove(string = "");					 //remove pro or con
+		virtual bool contains(string&) const;	 //partially match pros and cons
 
 	private:
 		set<string> pros;
@@ -143,4 +159,5 @@ class ModernCpp: public Concept
 		void edit_moderncpp(void); //called by edit as subroutine
 		void add_pro_or_con(void);
 		void edit_pro_or_con(void);
+		void remove_pro_or_con(void);
 };

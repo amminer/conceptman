@@ -22,7 +22,7 @@ void testPolymorphismAndMutation(Concept* c)
 		else if (_choice == "add")
 			c->add();
 		else if (_choice == "remove")
-			cout << "Not yet implemented :P\n";
+			c->remove();
 		else if (_choice == "goto")
 			c->select_site();
 		else if (_choice == "contains"){
@@ -50,7 +50,6 @@ void testSTL(void)
 	}
 	else
 		cout << "User canceled setup!\n";
-
 }
 
 void testModernCpp(void)
@@ -60,7 +59,14 @@ void testModernCpp(void)
 
 void testPythonLib(void)
 {
-	//TODO
+	PythonLib c;
+	string _choice;
+	if (c.setup()){
+		cout << '\n' << c << '\n';
+		testPolymorphismAndMutation(&c);
+	}
+	else
+		cout << "User canceled setup!\n";
 }
 
 int main(void)

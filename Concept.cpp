@@ -16,6 +16,16 @@
 Concept::Concept(void)
 	: name("NOT SET"), description("NOT SET") {}
 
+bool Concept::operator==(const Concept& op2) const
+{
+	return name == op2.name;
+}
+
+bool Concept::operator<(const Concept& op2) const
+{
+	return name < op2.name;
+}
+
 ostream& operator<<(ostream& out, const Concept& op2)
 {
 	op2.display(out);
@@ -57,7 +67,7 @@ void Concept::display(ostream& out) const
 	out << '"' << name << "\";\nDescription: "
 		<< description << "\nWebsites:";
 	if (websites.size() == 0)
-		cout << "No websites...";
+		cout << "\nNo websites...";
 	else{
 		for (const Website& w: websites){
 			out << '\n' << ++count << ": " << w;
@@ -116,6 +126,7 @@ void Concept::add(string _choice)
 		disp_invalid_input(_choice);
 		add();
 	}
+	return;
 }
 
 void Concept::edit(string _choice)
@@ -158,6 +169,24 @@ void Concept::edit(string _choice)
 	return;
 }
 
+void Concept::remove(string _choice)
+{
+	if (_choice == ""){
+		cout << "Would you like to remove a {website}, or an{other} piece of "
+			 << "info?\n{!q} to cancel: ";
+		_choice = get_string(2);
+	}
+	if 		(_choice == "website")
+		remove_site();
+	else if (_choice == "other")
+		throw out_of_range("User removes derived!"); //caught in derived
+	else{
+		disp_invalid_input(_choice);
+		remove();
+	}
+	return;
+}
+
 /*	PRIVATE METHODS	*/
 
 void Concept::set_name(void)
@@ -170,6 +199,40 @@ void Concept::set_description(void)
 {
 	cout << "Enter a description or {!q} to cancel: ";
 	description = get_string();	//may throw
+}
+
+void Concept::remove_site(void)
+{
+	string _choice;
+	set<Website>::iterator to_rem {websites.begin()}; //set->const iterator
+	bool match {false};
+	switch (websites.size()){
+		case 0:
+			cout << "No websites to remove!\n";
+			break;
+		case 1:
+			cout << "Removing \"" << to_rem->get_url() << "\"...\n";
+			websites.erase(to_rem);
+			break;
+		default:
+			cout << "Which website would you like to remove? {!q to cancel}: ";
+			_choice = get_string();
+			for (const Website& w: websites){
+				if (w == _choice){
+					match = true;
+					websites.erase(to_rem);
+					break; //is this ok?
+				}
+				else
+					advance(to_rem, 1);
+			}
+			if (!match){
+				cout << "No such website!\n";
+				remove_site();
+			}
+			break;
+	}
+	return;
 }
 
 void Concept::add_site(void)
@@ -277,7 +340,8 @@ bool STL::setup(bool base_set_up, bool method_added)
 	return ret;
 }
 
-void STL::edit(string _choice){
+void STL::edit(string _choice)
+{
 	try{
 		Concept::edit(); //if this returns w/ no throws, user edited base
 	}
@@ -306,6 +370,56 @@ void STL::add(string _choice)
 	return;
 }
 
+void STL::remove(string _choice)
+{
+	try{
+		Concept::remove(); //if this returns w/ no throws, user edited base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
+		remove_stl(); //call to derived edit function goes here
+	}
+
+	return;
+}
+void STL::remove_stl(void)
+{
+	remove_method(); //no need to do UI things since there is only one option
+	return;
+}
+void STL::remove_method(void)
+{
+	string _choice;
+	set<Method>::iterator to_rem {methods.begin()}; //set->const iterator
+	bool match {false};
+	switch (methods.size()){
+		case 0:
+			cout << "No methods to remove!\n";
+			break;
+		case 1:
+			cout << "Removing \"" << to_rem->get_name() << "\"...\n";
+			methods.erase(to_rem);
+			break;
+		default:
+			cout << "Which method would you like to remove? {!q to cancel}: ";
+			_choice = get_string();
+			for (const Method& m: methods){
+				if (m == _choice){
+					match = true;
+					methods.erase(to_rem);
+					break; //is this ok?
+				}
+				else
+					advance(to_rem, 1);
+			}
+			if (!match){
+				cout << "No such method!\n";
+				remove_method();
+			}
+			break;
+	}
+	return;
+}
 
 bool STL::contains(string& key) const
 {
@@ -350,10 +464,10 @@ void STL::edit_method(void)
 			new_method = *to_edit;
 			new_method.edit(); //if user cancels, copy is reinserted
 			if (methods.find(new_method) == methods.end()){
-				methods.erase(to_edit); //what if user changes name to an existing one?
-				methods.insert(new_method); //set will reject insert silently...
+				methods.erase(to_edit);
+				methods.insert(new_method);
 			}
-			break;						//and user will lose the one they edited. TODO
+			break;
 		default:
 			cout << "Which method would you like to edit? {!q to cancel}: ";
 			_choice = get_string();
@@ -393,11 +507,16 @@ void STL::add_method(void)
 
 
 
-/*			CLASS PYTHONLIB			*/ //TODO not started
+/*			CLASS PYTHONLIB			*/ //TODO in progress
 
-bool PythonLib::operator<(const PythonLib& op2)
+bool PythonLib::operator==(const PythonLib& op2) const
 {
-	return class_name < op2.class_name; //unsure TODO
+	return (name == op2.name and class_name == op2.class_name);
+}
+
+bool PythonLib::operator<(const PythonLib& op2) const
+{
+	return (name <= op2.name and class_name < op2.class_name);
 }
 
 /*	PUBLIC METHODS	*/
@@ -407,7 +526,7 @@ void PythonLib::display(ostream& out) const
 	//this is a rough draft for testing
 	out << "Python Library ";
 	Concept::display(out); //name, desc, websites handled here
-	out << "\nMethods:";//go on to handle derived
+	out << "\nMethods:"; //go on to handle derived
 	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
 		cout << "\nNo methods...";  //...can I just cout << set ?
 	else{
@@ -432,6 +551,19 @@ void PythonLib::edit(string _choice)
 	//TODO
 }
 
+void PythonLib::remove(string _choice)
+{
+	try{
+		Concept::remove(); //if this returns w/ no throws, user edited base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
+		remove_pythonlib(); //call to derived edit function goes here
+	}
+
+	return;
+}
+
 bool PythonLib::contains(string& key) const
 {
 	//TODO partially match class, lib, or meth name/desc
@@ -440,7 +572,70 @@ bool PythonLib::contains(string& key) const
 //need a unique derived method TODO
 
 /*	PRIVATE METHODS	*/
+void PythonLib::set_class_name(void)
+{
+	//TODO
+}
 
+void PythonLib::add_pythonlib(void)
+{
+	//TODO
+}
+
+void PythonLib::edit_pythonlib(void)
+{
+	//TODO
+}
+
+void PythonLib::add_method(void)
+{
+	//TODO
+}
+
+void PythonLib::edit_method(void)
+{
+	//TODO
+}
+
+void PythonLib::remove_pythonlib(void)
+{
+	remove_method(); //no need to do UI things since there is only one option
+	return;
+}
+
+void PythonLib::remove_method(void)
+{
+	string _choice;
+	set<Method>::iterator to_rem {methods.begin()}; //set->const iterator
+	bool match {false};
+	switch (methods.size()){
+		case 0:
+			cout << "No methods to remove!\n";
+			break;
+		case 1:
+			cout << "Removing \"" << to_rem->get_name() << "\"...\n";
+			methods.erase(to_rem);
+			break;
+		default:
+			cout << "Which method would you like to remove? {!q to cancel}: ";
+			_choice = get_string();
+			for (const Method& m: methods){
+				if (m == _choice){
+					match = true;
+					methods.erase(to_rem);
+					break; //is this ok?
+				}
+				else
+					advance(to_rem, 1);
+			}
+			if (!match){
+				cout << "No such method!\n";
+				remove_method();
+			}
+			break;
+	}
+	return;
+}
 
 
 
