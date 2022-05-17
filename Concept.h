@@ -33,15 +33,17 @@ class Concept: public Util	//ABC
 
 		friend ostream& operator<<(ostream& out, const Concept& op2);
 
+		void select_site(void) const;	//demanded by spec for some reason
+		virtual void display(ostream& out = cout) const; //"polymorphic" op<<
 		//calls all private setters/1 of each adder
 		virtual bool setup(bool = false, bool = false, bool = false); 
 		//add website, method, pro or con
 		virtual void add(string = "");
 		//edit website, method, pro or con
 		virtual void edit(string = "");
-		//lookup website, method, pro or con
-		virtual bool lookup(string&)=0;	//pure virtual//ABC
-		//string arg of lookup used to search for STL method or PythonLib class 
+		//contains website, method, pro or con
+		virtual bool contains(string&)=0;	//pure virtual//ABC
+		//string arg used to search for STL method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
 	private:
@@ -65,18 +67,20 @@ class STL: public Concept
 {
 	public:
 		//default constructor acceptable?
-		friend ostream& operator<<(ostream& out, const STL& op2);
 
 		//need a unique derived method TODO
-		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
-		void add(string = "");		//add method
-		void edit(string = "");		//edit method
-		bool lookup(string&);		//partially match method names and descriptions
+		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
+		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
+		//sticking w/ public interface pattern but no unused _choice args
+		virtual void add(string = "");								//add method
+		virtual void edit(string = "");							   //edit method
+		virtual bool contains(string&); 	  //partially match method name/desc
 
 	private:
 		vector<Method> methods;
 
-		void edit_stl(void); //called by edit as subroutine
+		void add_stl(void);	 //wrappers kept in for extensibility/uniformity
+		void edit_stl(void); //called by edit as subroutinue
 		void add_method(void);
 		void edit_method(void); //select a method and call its .edit()
 };
@@ -95,10 +99,10 @@ class PythonLib: public Concept
 				  string, vector<Method>);		//for tests
 
 		//need a unique derived method TODO
-		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
-		void add_info(string = "");			//add method
-		void edit_info(string = "");		//edit method, class name
-		bool lookup(string&);		//partially match classes and methods by name or desc
+		virtual bool setup(bool = false, bool = false);   //calls setters/adders
+		virtual void add(string = "");							    //add method
+		virtual void edit(string = "");				   //edit method, class name
+		virtual bool contains(string&); 	//partial match class/meth name/desc
 
 	private:
 		string class_name;
@@ -120,12 +124,12 @@ class ModernCpp: public Concept
 
 		string check_applicability(string&); //returns all pros and cons from
 										//any ModernCpp instance if they contain
-										//the string arg, concatenating them with
-										//double-newlines separating
-		bool setup(bool = false, bool = false);		//calls all private setters/1 of each adder
-		void add(string = "");		//add pro or con
-		void edit(string = "");		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
+										//the string arg+concatenating them with
+										//double-newlines as separators
+		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
+		virtual void add(string = "");							//add pro or con
+		virtual void edit(string = "");						   //edit pro or con
+		virtual bool contains(string&);			 //partially match pros and cons
 
 	private:
 		vector<string> pros;

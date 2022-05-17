@@ -1,18 +1,34 @@
 #include "../Concept.h"
 
+void testPolymorphismAndMutation(Concept* c)
+{
+	string _choice;
+	bool cont{true};
+	while (cont){
+		cout << "\n{edit} {add} or {remove} properties, {goto} website, or {!q} to quit: ";
+		getline(cin, _choice);
+		if (_choice == "edit")
+			c->edit();
+		else if (_choice == "add")
+			c->add();
+		else if (_choice == "remove")
+			cout << "Not yet implemented :P\n";
+		else if (_choice == "goto")
+			c->select_site();
+		else if (_choice == "!q")
+			cont = false;
+		if (cont)
+			cout << '\n' << *c << '\n';
+	}
+}
+
 void testSTL(void)
 {
-	//TODO in progress
 	STL c;
 	string _choice;
 	if (c.setup()){
 		cout << '\n' << c << '\n';
-		cout << "\nEdit {y or anything else}?: ";
-		getline(cin, _choice);
-		if (_choice == "y"){
-			c.edit();
-			cout << '\n' << c << '\n';
-		}
+		testPolymorphismAndMutation(&c);
 	}
 	else
 		cout << "User canceled setup!\n";
@@ -25,11 +41,6 @@ void testModernCpp(void)
 }
 
 void testPythonLib(void)
-{
-	//TODO
-}
-
-Concept* testPolymorphism(void)
 {
 	//TODO
 }

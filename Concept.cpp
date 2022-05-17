@@ -18,20 +18,45 @@ Concept::Concept(void)
 
 ostream& operator<<(ostream& out, const Concept& op2)
 {
-	//this is a rough draft for testing
-	out << '"' << op2.name << "\";\nDescription: "
-		<< op2.description << "\nWebsites:";
-	if (op2.websites.size() == 0)
-		cout << "No websites...";
-	else{
-		for (Website w: op2.websites){
-			out << '\n' << w;
-		}
-	}
+	op2.display(out);
 	return out;
 }
 
 /*	PUBLIC METHODS	*/
+
+//should only be called after a concept has been displayed
+void Concept::select_site(void)	const //demanded by spec for some reason
+{
+	int _choice {-2};
+	cout << "Which site would you like to select, by its number?: ";
+	try{
+		_choice = get_int(1, websites.size());
+		cout << "Selected:\n" << websites.at(_choice - 1).get_url() << '\n';
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		select_site();
+	}
+
+	return;
+}
+
+void Concept::display(ostream& out) const
+{
+	//this is a rough draft for testing
+	size_t count = 0;
+	out << '"' << name << "\";\nDescription: "
+		<< description << "\nWebsites:";
+	if (websites.size() == 0)
+		cout << "No websites...";
+	else{
+		for (const Website& w: websites){
+			out << '\n' << ++count << ": " << w;
+		}
+	}
+}
 
 bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 {
@@ -79,7 +104,11 @@ void Concept::add(string _choice)
 	if 		(_choice == "website")
 		add_site();
 	else if (_choice == "other")
-		throw out_of_range("User adds derived!");
+		throw out_of_range("User adds derived!"); //caught in derived
+	else{
+		disp_invalid_input(_choice);
+		add();
+	}
 }
 
 void Concept::edit(string _choice)
@@ -98,7 +127,7 @@ void Concept::edit(string _choice)
 		else if (_choice == "website")
 			edit_site();
 		else if (_choice == "other")
-			throw out_of_range("User edits derived!"); //user wants to edit outside of base "range"
+			throw out_of_range("User edits derived!"); //edit outside of base
 		else{
 			disp_invalid_input(_choice);
 			edit();
@@ -159,11 +188,11 @@ void Concept::edit_site(void)
 			websites.at(0).edit();
 			break;
 		default:
-			for (Website w: websites)
+			for (Website& w: websites)
 				cout << w << '\n';
 			cout << "Which website would you like to edit? {!q to cancel}: ";
 			_choice = get_string();
-			for (Website w: websites){
+			for (Website& w: websites){
 				if (w == _choice){
 					w.edit();
 					match = true;
@@ -177,33 +206,33 @@ void Concept::edit_site(void)
 
 /*			CLASS STL			*/ //TODO mostly complete
 
-ostream& operator<<(ostream& out, const STL& op2)
+/*	PUBLIC METHODS	*/
+
+void STL::display(ostream& out) const
 {
 	//this is a rough draft for testing
-	out << "STL concept " << static_cast<const Concept&>(op2) << '\n';
-	out << "Methods:";
-	if (op2.methods.size() == 0)	//todo may want a STL::display_methods subroutine
-		cout << "\nNo methods...";  //can I just cout << vector ?
+	out << "STL concept ";
+	Concept::display(out); //name, desc, websites handled here
+	out << "\nMethods:";//go on to handle derived
+	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
+		cout << "\nNo methods...";  //...can I just cout << vector ?
 	else{
-		for (Method m: op2.methods){
+		for (const Method& m: methods){
 			cout << '\n' << m;
 		}
 	}
-	return out;
 }
-
-/*	PUBLIC METHODS	*/
 
 bool STL::setup(bool base_set_up, bool method_added)
 {
 	bool ret {true};
 	try{
 		if (! base_set_up){
-			cout << "Setting up a new STL...\n"; //testing, will refine message to user
+			cout << "Setting up a new STL...\n"; //testing, will refine message 
 			ret = Concept::setup();
 			base_set_up = true;
 		}
-		if (! method_added){ //and ret) could maybe allow catching char* in base? todo
+		if (! method_added){
 			add_method();
 			method_added = true;
 		}
@@ -237,31 +266,53 @@ void STL::edit(string _choice){
 	return;
 }
 
-void STL::add(string _choice) //choice prob unnecessary since only one thing to add todo
-{
-	//TODO
-}
-
-
-bool STL::lookup(string& key)
-{
-	//TODO
-}
-
-//need a unique derived method TODO
-
-/*	PRIVATE METHODS	*/
-
-void STL::edit_stl(void)
+void STL::add(string _choice)
 {
 	try{
-		edit_method(); //no need to do UI things since there is only one option
+		Concept::add(); //if this returns w/ no throws, user added to base
+	}
+
+	catch (out_of_range& user_adds_derived){ //case user wants to add derived
+		add_stl();
 	}
 
 	catch (const char*& user_cancels){ //user entered !q
 		;
 	}
 
+	return;
+}
+
+
+bool STL::contains(string& key)
+{
+	//TODO partially match method name/desc
+	//IN PROG
+	bool ret = false;
+	for (Method& m: methods){
+		if (m.get_name().find(key) != string::npos){
+			ret = true;
+			break; //is this ok to use here?
+		}
+	}
+	return ret;
+}
+
+//need a unique derived method TODO
+
+/*	PRIVATE METHODS	*/
+
+//Kept in design for maintainability and uniformity
+void STL::add_stl(void)
+{
+	add_method(); //no need to do UI things since there is only one option
+	return;
+}
+
+//Kept in design for maintainability and uniformity
+void STL::edit_stl(void)
+{
+	edit_method(); //no need to do UI things since there is only one option
 	return;
 }
 
@@ -278,18 +329,21 @@ void STL::edit_method(void)
 			methods.at(0).edit();
 			break;
 		default:
-			for (Method m: methods)
+			for (Method& m: methods)
 				cout << m << '\n';
 			cout << "Which method would you like to edit? {!q to cancel}: ";
 			_choice = get_string();
-			for (Method m: methods){
+			for (Method& m: methods){
 				if (m == _choice){
 					m.edit();
 					match = true;
 				}
 			}
-			if (!match)
+			if (!match){
 				cout << "No such method!\n";
+				edit_method();
+			}
+			break;
 	}
 	return;
 }
@@ -300,16 +354,16 @@ void STL::add_method(void)
 	if (new_method.setup())
 		methods.push_back(new_method);
 	else //user cancelled
-		; //should I be catching the const char* here?
+		; //char* will be caught in add()
 	return;
 }
 
 /*			CLASS PYTHONLIB			*/ //TODO not started
 /*	PUBLIC METHODS	*/
 
-bool PythonLib::lookup(string& key)
+bool PythonLib::contains(string& key)
 {
-	//TODO
+	//TODO partially match class, lib, or meth name/desc
 }
 
 //need a unique derived method TODO
@@ -329,7 +383,7 @@ class PythonLib
 		bool setup(void);		//calls all private setters/1 of each adder
 		void add_info(void);		//add pro or con
 		void edit_info(void);		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
+		bool contains(string&);		//partially match pros and cons
 
 	private:
 		string class_name;
@@ -342,9 +396,9 @@ class PythonLib
 
 /*	PRIVATE METHODS	*/
 
-bool ModernCpp::lookup(string& key)
+bool ModernCpp::contains(string& key)
 {
-	//TODO
+	//TODO partially match pro or con or name or desc
 }
 
 string ModernCpp::check_applicability(string&) //cats partial matches
@@ -366,7 +420,7 @@ class ModernCpp
 		bool setup(void);		//calls all private setters/1 of each adder
 		void add_info(void);		//add pro or con
 		void edit_info(void);		//edit pro or con
-		bool lookup(string&);		//partially match pros and cons
+		bool contains(string&);		//partially match pros and cons
 
 	private:
 		vector<string> pros;

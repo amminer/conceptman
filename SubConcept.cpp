@@ -136,7 +136,7 @@ void Website::edit(string _choice)
 	return;
 }
 
-string& Website::get_url(void)
+const string& Website::get_url(void) const
 {
 	return url;
 }
@@ -206,7 +206,7 @@ bool Method::setup(bool name_set, bool desc_set)
 	bool ret {true};
 	try{
 		if (! name_set){
-			cout << "Setting up a new Method...\n"; //testing, will refine message to user
+			cout << "Setting up a new Method...\n"; //testing, will refine 
 			set_name();
 			name_set = true;
 		}

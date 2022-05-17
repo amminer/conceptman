@@ -54,7 +54,7 @@ class Website: public Util
 		//calls all private validators, true on success
 		bool setup(bool = false, bool = false, bool = false);
 		void edit(string = "");
-		string& get_url(void);
+		const string& get_url(void) const;
 
 	private:
 		//these throw exceptions...
