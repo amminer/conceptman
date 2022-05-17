@@ -155,6 +155,7 @@ void Concept::edit_site(void)
 			cout << "No websites to edit!\n";
 			break;
 		case 1:
+			cout << "Editing \"" << websites.at(0).get_url() << "\"...\n";
 			websites.at(0).edit();
 			break;
 		default:
@@ -273,6 +274,7 @@ void STL::edit_method(void)
 			cout << "No methods to edit!\n";
 			break;
 		case 1:
+			cout << "Editing method \"" << methods.at(0).get_name() << "\"...\n";
 			methods.at(0).edit();
 			break;
 		default:

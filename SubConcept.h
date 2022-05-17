@@ -54,6 +54,7 @@ class Website: public Util
 		//calls all private validators, true on success
 		bool setup(bool = false, bool = false, bool = false);
 		void edit(string = "");
+		string& get_url(void);
 
 	private:
 		//these throw exceptions...
@@ -82,6 +83,7 @@ class Method: public Util
 
 		bool setup(bool = false, bool = false);	//calls all private setters
 		void edit(string = "");	//user chooses to set name or description
+		string& get_name(void);
 
 	private:
 		void set_name();			//min len 1

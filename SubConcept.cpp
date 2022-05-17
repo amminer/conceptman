@@ -136,6 +136,11 @@ void Website::edit(string _choice)
 	return;
 }
 
+string& Website::get_url(void)
+{
+	return url;
+}
+
 /*	PRIVATE METHODS	*/
 
 /*	This will accept any format from the most shortened possible like "a.co"
@@ -257,6 +262,11 @@ void Method::edit(string _choice)
 	*/
 
 	return;
+}
+
+string& Method::get_name(void)
+{
+	return name;
 }
 
 /*	PRIVATE METHODS	*/

@@ -7,7 +7,7 @@ void testSTL(void)
 	string _choice;
 	if (c.setup()){
 		cout << '\n' << c << '\n';
-		cout << "Edit {y or anything else}?: ";
+		cout << "\nEdit {y or anything else}?: ";
 		getline(cin, _choice);
 		if (_choice == "y"){
 			c.edit();
