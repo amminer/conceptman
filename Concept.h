@@ -85,15 +85,17 @@ class STL: public Concept
 		virtual void remove(string = "");						 //remove method
 		virtual bool contains(string&) const; //partially match method name/desc
 
-	private:
+	protected:
 		set<Method> methods;
 
-		void add_stl(void);	 	//wrappers kept in for extensibility/uniformity
-		void edit_stl(void); 	//called by edit as subroutinue
-		void remove_stl(void);
 		void add_method(void);
 		void edit_method(void); //select a method and call its .edit()
 		void remove_method(void);
+
+	private:
+		void add_stl(void);	 	//wrappers kept in for extensibility/uniformity
+		void edit_stl(void); 	//called by edit as subroutinue
+		void remove_stl(void);
 };
 
 /*	Each Python library class gets many PythonLib instances with the same base
@@ -103,7 +105,7 @@ class STL: public Concept
  * whose class_name string is "global to library".
  *	SHOULD BE UNIQUE BASED ON class_name FIELD IN CLIENT CODE (operator==)
  */
-class PythonLib: public Concept
+class PythonLib: public STL
 {
 	public:
 		//default constructor works
@@ -112,25 +114,28 @@ class PythonLib: public Concept
 		//not sure about this, prob not a good move for use in tree-by-name
 		//bool operator==(const PythonLib& op2) const;
 
-		//need a unique derived method TODO
+		//returns whether class name is anything but "global to library"
+		//std::map tracks each PythonLib::name and maps it to a table of python
+		//libraries in ConceptManager to allow user to see which libraries are
+		//purely OO... not my favorite but it works todo
+		bool is_object_oriented(void);
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false, bool = false);
-		virtual void add(string = "");							    //add method
+		//virtual void add(string = "");							    //add method
 		virtual void edit(string = "");				   //edit method, class name
-		virtual void remove(string = "");						 //remove method
+		//virtual void remove(string = "");						 //remove method
 		virtual bool contains(string&) const; //part. match class/meth name/desc
 
 	private:
 		string class_name;
-		set<Method> methods;
 
 		void set_class_name(void);
 		void add_pythonlib(void);
-		void edit_pythonlib(void); //called by edit as subroutine
-		void remove_pythonlib(void);
-		void add_method(void);
-		void edit_method(void);
-		void remove_method(void);
+		void edit_pythonlib(string = ""); //called by edit as subroutine
+		//void remove_pythonlib(void);
+		//void add_method(void);
+		//void edit_method(void);
+		//void remove_method(void);
 };
 
 /*	Each modern c++ technique gets one ModernCpp instance, with a container of
