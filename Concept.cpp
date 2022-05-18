@@ -64,8 +64,8 @@ void Concept::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count = 0;
-	out << '"' << name << "\";\nDescription: "
-		<< description << "\nWebsites:";
+	out << '"' << name << "\"~~~*/\n/*~Description~*/\n"
+		<< description << "\n/*~Websites~*/";
 	if (websites.size() == 0)
 		cout << "\nNo websites...";
 	else{
@@ -297,9 +297,9 @@ void STL::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count {0};
-	out << "STL concept ";
+	out << "/*~~~STL concept ";
 	Concept::display(out); //name, desc, websites handled here
-	out << "\nMethods:";//go on to handle derived
+	out << "\n/*~Methods~*/";//go on to handle derived
 	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
 		out << "\nNo methods...";  //...can I just cout << set ?
 	else{
@@ -423,11 +423,15 @@ void STL::remove_method(void)
 
 bool STL::contains(string& key) const
 {
-	bool ret = false;
-	for (const Method& m: methods){
-		if (m.get_name().find(key) != string::npos){
-			ret = true;
-			break; //is this ok to use here?
+	bool ret {false};
+	if (name.find(key) != string::npos)
+		ret = true;
+	else{
+		for (const Method& m: methods){
+			if (m.get_name().find(key) != string::npos){
+				ret = true;
+				break; //is this ok to use here?
+			}
 		}
 	}
 	return ret;
@@ -509,10 +513,12 @@ void STL::add_method(void)
 
 /*			CLASS PYTHONLIB			*/ //TODO in progress
 
+/* //not sure about this, prob not a good move for use in tree-by-name
 bool PythonLib::operator==(const PythonLib& op2) const
 {
 	return (name == op2.name and class_name == op2.class_name);
 }
+*/
 
 bool PythonLib::operator<(const PythonLib& op2) const
 {
@@ -524,9 +530,10 @@ bool PythonLib::operator<(const PythonLib& op2) const
 void PythonLib::display(ostream& out) const
 {
 	//this is a rough draft for testing
-	out << "Python Library ";
+	out << "/*~~~Python Library ";
 	Concept::display(out); //name, desc, websites handled here
-	out << "\nMethods:"; //go on to handle derived
+	out << "\n/*~Class Name~*/\n" << class_name	//go on to handle derived
+	    << "\n/*~Methods~*/";
 	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
 		cout << "\nNo methods...";  //...can I just cout << set ?
 	else{
@@ -536,19 +543,72 @@ void PythonLib::display(ostream& out) const
 	}
 }
 
-bool PythonLib::setup(bool class_name_set, bool method_added)
+bool PythonLib::setup(bool base_set_up, bool class_name_set, bool method_added)
 {
-	//TODO
+	//TODO test
+	bool ret {true};
+	try{
+		if (! base_set_up){
+			cout << "Setting up a new PythonLib...\n"; //testing, refine message
+			ret = Concept::setup();
+			base_set_up = true;
+		}
+		if (!class_name_set){
+			set_class_name();
+			class_name_set = true;
+		}
+		if (! method_added){
+			add_method();
+			method_added = true;
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		return setup(base_set_up, class_name_set, method_added); //finish setup
+	}
+
+	catch (const char*& user_cancels){
+		//not strictly necessary... but useful info for debugging
+		//should I let the program be run with a -g flag? vargs easy to set up
+		*this = PythonLib(); //reset and return
+		ret = false;
+	}
+
+	return ret;
 }
 
 void PythonLib::add(string _choice)
 {
-	//TODO
+	//TODO test
+	try{
+		Concept::add(); //if this returns w/ no throws, user added to base
+	}
+
+	catch (out_of_range& user_adds_derived){ //case user wants to add derived
+		add_pythonlib();
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
+	}
+
+	return;
 }
 
 void PythonLib::edit(string _choice)
 {
-	//TODO
+	//TODO test
+	try{
+		Concept::edit(); //if this returns w/ no throws, user edited base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
+		edit_pythonlib(); //call to derived edit function goes here
+	}
+
+	return;
 }
 
 void PythonLib::remove(string _choice)
@@ -566,7 +626,21 @@ void PythonLib::remove(string _choice)
 
 bool PythonLib::contains(string& key) const
 {
-	//TODO partially match class, lib, or meth name/desc
+	//TODO test
+	bool ret {false};
+	if (name.find(key) != string::npos)
+		ret = true;
+	else if (class_name.find(key))
+		ret = true;
+	else{
+		for (const Method& m: methods){
+			if (m.get_name().find(key) != string::npos){
+				ret = true;
+				break; //is this ok to use here?
+			}
+		}
+	}
+	return ret;
 }
 
 //need a unique derived method TODO
@@ -574,37 +648,89 @@ bool PythonLib::contains(string& key) const
 /*	PRIVATE METHODS	*/
 void PythonLib::set_class_name(void)
 {
-	//TODO
+	cout << "Enter a class name or {!q} to cancel: ";
+	class_name = get_string();		//may throw
 }
 
 void PythonLib::add_pythonlib(void)
 {
-	//TODO
+	add_method(); //no need to do UI things since there is only one option
+	return;
 }
 
 void PythonLib::edit_pythonlib(void)
 {
-	//TODO
+	//TODO test
+	edit_method(); //no need to do UI things since there is only one option
+	return;
 }
 
 void PythonLib::add_method(void)
 {
-	//TODO
+	Method new_method;
+	if (new_method.setup())
+		methods.insert(new_method);
+	else //user cancelled
+		; //char* will be caught in add()
+	return;
 }
 
 void PythonLib::edit_method(void)
 {
-	//TODO
+	//TODO test
+	string _choice;
+	set<Method>::iterator to_edit {methods.begin()}; //set->const iterator
+	Method new_method;
+	bool match {false};
+	switch (methods.size()){
+		case 0:
+			cout << "No methods to edit!\n";
+			break;
+		case 1:
+			cout << "Editing \"" << to_edit->get_name() << "\"...\n";
+			new_method = *to_edit;
+			new_method.edit(); //if user cancels, copy is reinserted
+			if (methods.find(new_method) == methods.end()){
+				methods.erase(to_edit);
+				methods.insert(new_method);
+			}
+			break;
+		default:
+			cout << "Which method would you like to edit? {!q to cancel}: ";
+			_choice = get_string();
+			for (const Method& m: methods){
+				if (m == _choice){
+					match = true;
+					new_method = m;
+					new_method.edit();
+					if (methods.find(new_method) == methods.end()){
+						methods.erase(to_edit);
+						methods.insert(new_method);
+					}
+					break; //is this ok?
+				}
+				else
+					advance(to_edit, 1);
+			}
+			if (!match){
+				cout << "No such method!\n";
+				edit_method();
+			}
+			break;
+	}
+	return;
 }
 
 void PythonLib::remove_pythonlib(void)
 {
+	//TODO test
 	remove_method(); //no need to do UI things since there is only one option
 	return;
 }
 
 void PythonLib::remove_method(void)
 {
+	//TODO test
 	string _choice;
 	set<Method>::iterator to_rem {methods.begin()}; //set->const iterator
 	bool match {false};

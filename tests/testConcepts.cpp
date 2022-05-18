@@ -14,7 +14,7 @@ void testPolymorphismAndMutation(Concept* c)
 	string _choice;
 	bool cont{true};
 	while (cont){
-		cout << "\n{edit} {add} or {remove} properties, {goto} website,\n"
+		cout << "{edit} {add} or {remove} properties, {goto} website,\n"
 		   << "test whether the concept {contains} a string, or {!q} to quit: ";
 		getline(cin, _choice);
 		if (_choice == "edit")
@@ -37,6 +37,7 @@ void testPolymorphismAndMutation(Concept* c)
 			cont = false;
 		if (cont)
 			cout << '\n' << *c << '\n';
+		cout << '\n';
 	}
 }
 
@@ -45,7 +46,7 @@ void testSTL(void)
 	STL c;
 	string _choice;
 	if (c.setup()){
-		cout << '\n' << c << '\n';
+		cout << '\n' << c << "\n\n";
 		testPolymorphismAndMutation(&c);
 	}
 	else
@@ -62,8 +63,8 @@ void testPythonLib(void)
 	PythonLib c;
 	string _choice;
 	if (c.setup()){
-		cout << '\n' << c << '\n';
-		testPolymorphismAndMutation(&c);
+		cout << '\n' << c << "\n\n";
+		testPolymorphismAndMutation(&c); //TODO
 	}
 	else
 		cout << "User canceled setup!\n";
@@ -71,6 +72,6 @@ void testPythonLib(void)
 
 int main(void)
 {
-	testSTL();
+	testPythonLib();
 	return 0;
 }

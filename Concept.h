@@ -109,11 +109,12 @@ class PythonLib: public Concept
 		//default constructor works
 
 		bool operator< (const PythonLib& op2) const;
-		bool operator==(const PythonLib& op2) const;
+		//not sure about this, prob not a good move for use in tree-by-name
+		//bool operator==(const PythonLib& op2) const;
 
 		//need a unique derived method TODO
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
-		virtual bool setup(bool = false, bool = false);   //calls setters/adders
+		virtual bool setup(bool = false, bool = false, bool = false);
 		virtual void add(string = "");							    //add method
 		virtual void edit(string = "");				   //edit method, class name
 		virtual void remove(string = "");						 //remove method
