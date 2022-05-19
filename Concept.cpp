@@ -4,12 +4,11 @@
  *	cs202, section 003
  *	FILE:		Concept.cpp
  *	PURPOSE:	Define the central hierarchy for the program,
- *			one base class Concept and three derived classes STL,
+ *			one base class Concept and three derived classes Library,
  *			PythonLib, and ModernCpp. Subclasses generally call the base
  *			version of their method before following it up with their own
  *			behavior based on derived needs.
  */
-
 
 /*			CLASS CONCEPT			*/
 
@@ -64,7 +63,9 @@ void Concept::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count = 0;
-	out << '"' << name << "\"~~~*/\n/*~Description~*/\n"
+	if (name != "none")
+		out << name;
+	out << "~~~*/\n/*~Description~*/\n"
 		<< description << "\n/*~Websites~*/";
 	if (websites.size() == 0)
 		cout << "\nNo websites...";
@@ -113,19 +114,28 @@ bool Concept::setup(bool name_set, bool desc_set, bool site_added)
 
 void Concept::add(string _choice)
 {
-	if (_choice == ""){
-		cout << "Would you like to add a {website}, or an{other} piece of "
-			 << "info?\n{!q} to cancel: ";
-		_choice = get_string(2);
+	try{
+		if (_choice == ""){
+			cout << "Would you like to add a {website}, or an{other} piece of "
+				 << "info?\n{!q} to cancel: ";
+			_choice = get_string(2); //may throw char*; caught in derived
+		}
+		if 		(_choice == "website")
+			add_site();
+		else if (_choice == "other")
+			throw out_of_range("User adds derived!"); //caught in derived
+		else{
+			disp_invalid_input(_choice);
+			add();
+		}
 	}
-	if 		(_choice == "website")
-		add_site();
-	else if (_choice == "other")
-		throw out_of_range("User adds derived!"); //caught in derived
-	else{
-		disp_invalid_input(_choice);
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
 		add();
 	}
+
 	return;
 }
 
@@ -136,7 +146,7 @@ void Concept::edit(string _choice)
 			cout << "Would you like to edit the"
 				 << " {name}, {description}, a {website},"
 				 << " or an{other} attribute?\n{!q} to cancel: ";
-			_choice = get_string(2);
+			_choice = get_string(2); //may throw char*; caught in derived
 		}
 		if		(_choice == "name")
 			set_name();
@@ -171,19 +181,28 @@ void Concept::edit(string _choice)
 
 void Concept::remove(string _choice)
 {
-	if (_choice == ""){
-		cout << "Would you like to remove a {website}, or an{other} piece of "
-			 << "info?\n{!q} to cancel: ";
-		_choice = get_string(2);
+	try{
+		if (_choice == ""){
+			cout << "Would you like to remove a {website}, or an{other} piece of "
+				 << "info?\n{!q} to cancel: ";
+			_choice = get_string(2); //may throw char* - caught in derived
+		}
+		if 		(_choice == "website")
+			remove_site();
+		else if (_choice == "other")
+			throw out_of_range("User removes derived!"); //caught in derived
+		else{
+			disp_invalid_input(_choice);
+			remove();
+		}
 	}
-	if 		(_choice == "website")
-		remove_site();
-	else if (_choice == "other")
-		throw out_of_range("User removes derived!"); //caught in derived
-	else{
-		disp_invalid_input(_choice);
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
 		remove();
 	}
+
 	return;
 }
 
@@ -216,20 +235,29 @@ void Concept::remove_site(void)
 			break;
 		default:
 			cout << "Which website would you like to remove? {!q to cancel}: ";
-			_choice = get_string(3);
-			for (const Website& w: websites){
-				if (w == _choice){
-					match = true;
-					websites.erase(to_rem);
-					break; //is this ok?
+			try{
+				_choice = get_string(2);
+				for (const Website& w: websites){
+					if (w == _choice){
+						match = true;
+						websites.erase(to_rem);
+						break; //is this ok?
+					}
+					else
+						advance(to_rem, 1);
 				}
-				else
-					advance(to_rem, 1);
+				if (!match){
+					cout << "No such website!\n";
+					remove_site();
+				}
 			}
-			if (!match){
-				cout << "No such website!\n";
+
+			catch (invalid_argument& bad_input){
+				disp_invalid_input((string) bad_input.what());
+				cout << "Please try again.\n";
 				remove_site();
 			}
+
 			break;
 	}
 	return;
@@ -263,41 +291,50 @@ void Concept::edit_site(void)
 			break;
 		default:
 			cout << "Which website would you like to edit? {!q to cancel}: ";
-			_choice = get_string(3);
-			for (const Website& w: websites){
-				if (w == _choice){
-					match = true;
-					new_site = w;
-					new_site.edit(); //if user cancels,
-					websites.erase(to_edit);
-					websites.insert(new_site);
-					break; //is this ok?
+			try{
+				_choice = get_string(2);
+				for (const Website& w: websites){
+					if (w == _choice){
+						match = true;
+						new_site = w;
+						new_site.edit(); //if user cancels,
+						websites.erase(to_edit);
+						websites.insert(new_site);
+						break; //is this ok?
+					}
+					else
+						advance(to_edit, 1);
 				}
-				else
-					advance(to_edit, 1);
+				if (!match){
+					cout << "No such website!\n";
+					edit_site();
+				}
 			}
-			if (!match){
-				cout << "No such website!\n";
+
+			catch (invalid_argument& bad_input){
+				disp_invalid_input((string) bad_input.what());
+				cout << "Please try again.\n";
 				edit_site();
 			}
+
 			break;
 	}
 	return;
 }
 
-/*			CLASS STL			*/ //TODO still need diff interface'd method
+/*			CLASS LIBRARY			*/
 
 /*	PUBLIC METHODS	*/
 
-void STL::display(ostream& out) const
+void Library::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count {0};
-	if (! dynamic_cast<const PythonLib*>(this))
-		out << "/*~~~STL concept ";
+	//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
+	//	out << "/*~~~Library concept ";
 	Concept::display(out); //name, desc, websites handled here
 	out << "\n/*~Methods~*/";//go on to handle derived
-	if (methods.size() == 0)	//todo may want STL::display_meths subrtn
+	if (methods.size() == 0)	//todo may want Library::display_meths subrtn
 		out << "\nNo methods...";  //...can I just cout << set ?
 	else{
 		for (const Method& m: methods){
@@ -306,13 +343,13 @@ void STL::display(ostream& out) const
 	}
 }
 
-bool STL::setup(bool base_set_up, bool method_added)
+bool Library::setup(bool base_set_up, bool method_added)
 {
 	bool ret {true};
 	try{
 		if (! base_set_up){
-			if (! dynamic_cast<const PythonLib*>(this))
-				cout << "Setting up a new STL...\n"; //testing, will refine 
+			//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
+			//	cout << "Setting up a new STL...\n"; //testing, will refine 
 			ret = Concept::setup();
 			base_set_up = true;
 		}
@@ -331,23 +368,23 @@ bool STL::setup(bool base_set_up, bool method_added)
 	catch (const char*& user_cancels){
 		//not strictly necessary... but useful info for debugging
 		//should I let the program be run with a -g flag? vargs easy to set up
-		*this = STL(); //reset and return
+		*this = Library(); //reset and return
 		ret = false;
-		if (! dynamic_cast<const PythonLib*>(this))
-			throw "User cancels!"; //caught in PythonLib::setup
+		//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
+		//	throw "User cancels!"; //caught in PythonLib::setup
 	}
 
 	return ret;
 }
 
-void STL::edit(string _choice)
+void Library::edit(string _choice)
 {
 	try{
 		Concept::edit(); //if this returns w/ no throws, user edited base
 	}
 
 	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
-		edit_stl(); //call to derived edit function goes here
+		edit_library(); //call to derived edit function goes here
 	}
 
 	catch (const char*& user_cancels){ //user entered !q
@@ -357,14 +394,14 @@ void STL::edit(string _choice)
 	return;
 }
 
-void STL::add(string _choice)
+void Library::add(string _choice)
 {
 	try{
 		Concept::add(); //if this returns w/ no throws, user added to base
 	}
 
 	catch (out_of_range& user_adds_derived){ //case user wants to add derived
-		add_stl();
+		add_library();
 	}
 
 	catch (const char*& user_cancels){ //user entered !q
@@ -374,14 +411,14 @@ void STL::add(string _choice)
 	return;
 }
 
-void STL::remove(string _choice)
+void Library::remove(string _choice)
 {
 	try{
-		Concept::remove(); //if this returns w/ no throws, user edited base
+		Concept::remove(); //if this returns w/ no throws, user removed base
 	}
 
-	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
-		remove_stl(); //call to derived edit function goes here
+	catch (out_of_range& user_edits_derived){ //case remove derived
+		remove_library(); //call to derived remove function goes here
 	}
 
 	catch (const char*& user_cancels){ //user entered !q
@@ -391,7 +428,7 @@ void STL::remove(string _choice)
 	return;
 }
 
-bool STL::contains(string& key) const
+bool Library::contains(string& key) const
 {
 	bool ret {false};
 	if (name.find(key) != string::npos)
@@ -407,38 +444,29 @@ bool STL::contains(string& key) const
 	return ret;
 }
 
-//TODO see top
-
 /*	PRIVATE METHODS	*/
 
 //Kept in design for maintainability and uniformity
-void STL::add_stl(void)
+void Library::add_library(void)
 {
 	add_method(); //no need to do UI things since there is only one option
 	return;
 }
 
 //Kept in design for maintainability and uniformity
-void STL::edit_stl(void)
+void Library::edit_library(void)
 {
-	try{
-		edit_method(); //no need to do UI things since there is only one option
-	}
-
-	catch (const char*& user_cancels){
-		;
-	}
-
+	edit_method(); //no need to do UI things since there is only one option
 	return;
 }
 
-void STL::remove_stl(void)
+void Library::remove_library(void)
 {
 	remove_method(); //no need to do UI things since there is only one option
 	return;
 }
 
-void STL::add_method(void)
+void Library::add_method(void)
 {
 	Method new_method;
 	if (new_method.setup())
@@ -448,7 +476,7 @@ void STL::add_method(void)
 	return;
 }
 
-void STL::edit_method(void)
+void Library::edit_method(void)
 {
 	string _choice;
 	set<Method>::iterator to_edit {methods.begin()}; //set->const iterator
@@ -461,36 +489,44 @@ void STL::edit_method(void)
 		case 1:
 			cout << "Editing \"" << to_edit->get_name() << "\"...\n";
 			new_method = *to_edit;
-			new_method.edit(); //may throw char* cancel, caught in edit_stl &&
+			new_method.edit(); //may throw char* cancel, caught in edit_library &&
 			methods.erase(to_edit); //execution returns with pre-erase state
 			methods.insert(new_method);
 			break;
 		default:
 			cout << "Which method would you like to edit? {!q to cancel}: ";
-			_choice = get_string(1);
-			for (const Method& m: methods){
-				if (m == _choice){
-					match = true;
-					new_method = m;
-					new_method.edit(); //may throw cancel, caught in edit_stl &&
-					methods.erase(to_edit); //execution returns pre-erase
-					methods.insert(new_method);
-					break; //no need to examine rest of set - is this ok?
+			try{
+				_choice = get_string(1);
+				for (const Method& m: methods){
+					if (m == _choice){
+						match = true;
+						new_method = m;
+						new_method.edit(); //may throw cancel, caught in edit_library &&
+						methods.erase(to_edit); //execution returns pre-erase
+						methods.insert(new_method);
+						break; //no need to examine rest of set - is this ok?
+					}
+					else{
+						advance(to_edit, 1);
+					}
 				}
-				else{
-					advance(to_edit, 1);
+				if (!match){
+					cout << "No such method!\n";
+					edit_method();
 				}
+				break;
 			}
-			if (!match){
-				cout << "No such method!\n";
+
+			catch (invalid_argument& bad_input){
+				disp_invalid_input((string) bad_input.what());
+				cout << "Please try again.\n";
 				edit_method();
 			}
-			break;
 	}
 	return;
 }
 
-void STL::remove_method(void)
+void Library::remove_method(void)
 {
 	string _choice;
 	set<Method>::iterator to_rem {methods.begin()}; //set->const iterator
@@ -505,26 +541,55 @@ void STL::remove_method(void)
 			break;
 		default:
 			cout << "Which method would you like to remove? {!q to cancel}: ";
-			_choice = get_string(1);
-			for (const Method& m: methods){
-				if (m == _choice){
-					match = true;
-					methods.erase(to_rem);
-					break; //is this ok?
+			try{
+				_choice = get_string(1);
+				for (const Method& m: methods){
+					if (m == _choice){
+						match = true;
+						methods.erase(to_rem);
+						break; //is this ok?
+					}
+					else
+						advance(to_rem, 1);
 				}
-				else
-					advance(to_rem, 1);
+				if (!match){
+					cout << "No such method!\n";
+					remove_method();
+				}
+				break;
 			}
-			if (!match){
-				cout << "No such method!\n";
+
+			catch (invalid_argument& bad_input){
+				disp_invalid_input((string) bad_input.what());
+				cout << "Please try again.\n";
 				remove_method();
 			}
-			break;
+
 	}
 	return;
 }
 
+/*			CLASS STL			*/
 
+void STL::display(ostream& out) const    //"polymorphic" op<<
+{
+	//this is a rough draft for testing
+	if (name == "none")
+		out << "\n/*~~~Global STL Methods";
+	else
+		out << "\n/*~~~STL Methods belonging to std::";
+	Library::display(out); //name, desc, websites, methods handled here
+}
+
+//Many standard library classes share similar interfaces;
+//this allows us to define a generic set of methods and then copy it
+//into new libraries instead of entering those generic methods each time
+void STL::copy_methods(const STL& to_copy_from)
+{
+	for (Method m: to_copy_from.methods){
+		methods.insert(m);
+	}
+}
 
 /*			CLASS PYTHONLIB			*/
 
@@ -545,23 +610,25 @@ bool PythonLib::operator<(const PythonLib& op2) const
 void PythonLib::display(ostream& out) const
 {
 	//this is a rough draft for testing
-	out << "\n/*~Class Name~*/\n" << class_name
-		<< "\n/*~~~Python Library ";
-	STL::display(out); //name, desc, websites, methods handled here
+	if (class_name == "none")
+		out << "\n/*~~~Global Python Library Methods for ";
+	else
+		cout << "\n/*~~~Methods belonging to class " << class_name
+			 << "\n                       of library ";
+	Library::display(out); //name, desc, websites, methods handled here
 }
 
 bool PythonLib::setup(bool base_set_up, bool class_name_set, bool method_added)
 {
 	bool ret {true};
 	try{
-		if (! base_set_up){
-			cout << "Setting up a new PythonLib...\n"; //testing, refine message
-			ret = STL::setup();
-			base_set_up = true;
-		}
 		if (!class_name_set){
 			set_class_name();
 			class_name_set = true;
+		}
+		if (! base_set_up){
+			ret = Library::setup();
+			base_set_up = true;
 		}
 	}
 
@@ -584,7 +651,7 @@ bool PythonLib::setup(bool base_set_up, bool class_name_set, bool method_added)
 void PythonLib::edit(string _choice)
 {
 	try{
-		STL::edit(); //if this returns w/ no throws, user edited base
+		Concept::edit(); //if this returns w/ no throws, user edited base
 	}
 
 	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
@@ -616,14 +683,14 @@ bool PythonLib::contains(string& key) const
 	return ret;
 }
 
-//returns whether class name is anything but "global to library"
-//std::map tracks each PythonLib::name and maps it to a table of python
-//libraries in ConceptManager to allow user to see which libraries are
-//purely OO... not my favorite but it works todo
+//returns whether class name is anything but "none"
+//std::map tracks each PythonLib::name and maps it to a boolean set by
+//calls to each PyLib::is_o_o inside ConceptManager. Allows user to see
+//which libraries are purely OO... not my favorite but it works... todo
 bool PythonLib::is_object_oriented(void)
 {
 	bool ret {true};
-	if (class_name == "global to library")
+	if (class_name == "none")
 		ret = false;
 	return ret;
 }
@@ -631,7 +698,9 @@ bool PythonLib::is_object_oriented(void)
 /*	PRIVATE METHODS	*/
 void PythonLib::set_class_name(void)
 {
-	cout << "Enter a class name or {!q} to cancel: ";
+	cout << "Enter a class name, or {none} if you intend to add methods\n"
+		 << "that don't belong to a class within this library,\n"
+		 << "or {!q} to cancel: ";
 	class_name = get_string(1);		//may throw
 }
 
@@ -653,6 +722,12 @@ void PythonLib::edit_pythonlib(string _choice)
 		}
 	}
 
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		edit_pythonlib();
+	}
+
 	catch (const char*& user_cancels){
 		;
 	}
@@ -661,17 +736,308 @@ void PythonLib::edit_pythonlib(string _choice)
 }
 
 
-/*			CLASS MODERNCPP			*/ //TODO not started
+/*			CLASS MODERNCPP			*/
+
 /*	PUBLIC METHODS	*/
 
-/*	PRIVATE METHODS	*/
+void ModernCpp::display(ostream& out) const
+{
+	//this is a rough draft for testing
+	size_t count {0};
+	out << "/*~~~Modern C++ technique: ";
+	Concept::display(out); //name, desc, websites handled here
+	out << "\n/*~Pros~*/";//go on to handle derived
+	if (pros.size() == 0)
+		out << "\nNo pros...";
+	else{
+		for (const string& s: pros){
+			out << '\n' << ++count << ": " << s;
+		}
+	}
+	out << "\n/*~Cons~*/";//go on to handle derived
+	if (cons.size() == 0)	//todo may want Library::display_meths subrtn
+		out << "\nNo cons...";  //...can I just cout << set ?
+	else{
+		for (const string& s: cons){
+			out << '\n' << ++count << ": " << s;
+		}
+		count = 0;
+	}
+}
+
+bool ModernCpp::setup(bool base_set_up, bool pro_or_con_added)	   //set/add
+{
+	bool ret {true};
+	try{
+		if (! base_set_up){
+			ret = Concept::setup();
+			base_set_up = true;
+		}
+		if (!pro_or_con_added){
+			add_pro_or_con();
+			pro_or_con_added = true;
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		return setup(base_set_up, pro_or_con_added); //finish setup
+	}
+
+	catch (const char*& user_cancels){
+		//not strictly necessary... but useful info for debugging
+		//should I let the program be run with a -g flag? vargs easy to set up
+		*this = ModernCpp(); //reset and return
+		ret = false;
+	}
+
+	return ret;
+}
+
+void ModernCpp::add(string _choice)						//add pro or con
+{
+	try{
+		Concept::add(); //if this returns w/ no throws, user added to base
+	}
+
+	catch (out_of_range& user_adds_derived){ //case user wants to add derived
+		add_moderncpp();
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
+	}
+
+	return;
+}
+
+void ModernCpp::edit(string _choice)					   //edit pro or con
+{
+	try{
+		Concept::edit(); //if this returns w/ no throws, user edited base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case user wants to edit derived
+		edit_moderncpp(); //call to derived edit function goes here
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		; 
+	}
+
+	return;
+}
+
+void ModernCpp::remove(string _choice)					 //remove pro or con
+{
+	try{
+		Concept::remove(); //if this returns w/ no throws, user removed base
+	}
+
+	catch (out_of_range& user_edits_derived){ //case remove derived
+		remove_moderncpp(); //call to derived remove function goes here
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		; 
+	}
+
+	return;
+}
+
 
 bool ModernCpp::contains(string& key) const
 {
-	//TODO partially match pro or con or name or desc
+	bool ret {false};
+	if (name.find(key) != string::npos)				//check name
+		ret = true;
+	else{											//check pros
+		for (const string& s: pros){
+			if (s.find(key) != string::npos){
+				ret = true;
+				break; //is this ok to use here?
+			}
+		}
+		if (!ret){
+			for (const string& s: cons){			//check cons
+				if (s.find(key) != string::npos){
+					ret = true;
+					break; //is this ok to use here?
+				}
+			}
+		}
+	}
+	return ret;
 }
 
-string ModernCpp::check_applicability(string&) //cats partial matches
+//returns pros and cons relevant to a keyword, concatenated
+string ModernCpp::check_applicability(string key) //cats partial matches
 {
-	//TODO
+	string ret = "\n";
+	bool no_pros = true, no_cons = true;
+	try{
+		cout << "Enter a keyword to check pros and cons for: ";
+		key = get_string(1);
+		for (const string& s: pros){
+			if (s.find(key) != string::npos){
+				if (no_pros){
+					ret += "! Pros:\n";
+					no_pros = false;
+				}
+				ret += (s + '\n');
+			}
+		}
+		for (const string& s: cons){
+			if (s.find(key) != string::npos){
+				if (no_cons){
+					ret += "! Cons:\n";
+					no_cons = false;
+				}
+				ret += (s + '\n');
+			}
+		}
+		if (no_pros and no_cons)
+			ret += "No relevant pros or cons found";
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		return check_applicability();
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
+	}
+
+	return ret;
+}
+
+/*	PRIVATE METHODS	*/
+
+void ModernCpp::add_moderncpp(void)
+{
+	add_pro_or_con(); //no need to do UI things, only one option
+	return;
+}
+
+void ModernCpp::edit_moderncpp(void)
+{
+	edit_pro_or_con(); //no need to do UI things since there is only one option
+	return;
+}
+
+void ModernCpp::remove_moderncpp(void)
+{
+	remove_pro_or_con(); //no need to do UI, only one option for now
+}
+
+void ModernCpp::add_pro_or_con(void)
+{
+	string _choice;
+	string _new_item; //stores new pro or con for insertion
+	cout << "Would you like to add a {pro} or a {con}? {!q to cancel}: ";
+	try{
+		_choice = get_string(2,3);
+		if (_choice != "pro" and _choice != "con"){
+			disp_invalid_input(_choice);
+			add_pro_or_con();
+			return;
+		}
+		else{
+			cout << "Enter the " << _choice << ": ";
+			_new_item = get_string(1);
+			if (_choice == "pro")
+				pros.insert(_new_item);
+			else
+				cons.insert(_new_item);
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		add_pro_or_con();
+	}
+
+	catch (const char*& user_cancels){ //user entered !q
+		;
+	}
+
+	return;
+}
+
+void ModernCpp::edit_pro_or_con(void)
+{
+	int _choice {-2};
+	string _new_item;
+	if (pros.empty() and cons.empty())
+		cout << "No pros or cons to edit!\n";
+	else{
+		cout << "Which pro or con would you like to edit,\n"
+			 << " by its number? {-1 to cancel}: ";
+		try{
+			_choice = get_int(1, pros.size() + cons.size());
+			if ((size_t)_choice <= pros.size()){
+				cout << "Enter the pro's new contents: ";
+				_new_item = get_string(1);
+				pros.erase(next(pros.begin(), _choice-1));
+				pros.insert(_new_item);
+			}
+			else{
+				_choice -= pros.size();
+				cout << "Enter the con's new contents: ";
+				_new_item = get_string(1);
+				cons.erase(next(cons.begin(), _choice-1));
+				cons.insert(_new_item);
+			}
+		}
+
+		catch (invalid_argument& bad_input){
+			disp_invalid_input((string) bad_input.what());
+			cout << "Please try again.\n";
+			edit_pro_or_con();
+		}
+
+		catch (const char*& user_cancels){ //user entered !q
+			;
+		}
+	}
+
+	return;
+}
+
+void ModernCpp::remove_pro_or_con(void)
+{
+	int _choice {-2};
+	string _new_item;
+	if (pros.empty() and cons.empty())
+		cout << "No pros or cons to remove!\n";
+	else{
+		cout << "Which pro or con would you like to remove,\n"
+			 << " by its number? {-1 to cancel}: ";
+		try{
+			_choice = get_int(1, pros.size() + cons.size());
+			if ((size_t)_choice <= pros.size()){
+				pros.erase(next(pros.begin(), _choice-1));
+			}
+			else{
+				_choice -= pros.size();
+				cons.erase(next(cons.begin(), _choice-1));
+			}
+		}
+
+		catch (invalid_argument& bad_input){
+			disp_invalid_input((string) bad_input.what());
+			cout << "Please try again.\n";
+			remove_pro_or_con();
+		}
+
+		catch (const char*& user_cancels){ //user entered !q
+			;
+		}
+	}
+
+	return;
 }

@@ -8,18 +8,18 @@
  *	cs202, section 003
  *	FILE:		Concept.h
  *	PURPOSE:	Declare the central hierarchy for the program,
- *			one base class Concept and three derived classes STL,
+ *			one base class Concept and three derived classes Library,
  *			PythonLib, and ModernCpp. Each class has a self similar
  *			interface with the exception of one function per derived
  *			class. Concept is an abstract base class (ABC).
- *				PythonLib and STL objects contain a collection of methods,
- *			which belong to the container indicated by STL.name or the class
+ *				PythonLib and Library objects contain a collection of methods,
+ *			which belong to the container indicated by Library.name or the class
  *			indicated by PythonLib.class_name within the library PythonLib.name.
  *			PythonLib methods which do not belong to some class within their
  *			library are sorted into a single PythonLib instance w/ that library
- *			name + class_name "global to library". STL methods which do not
- *			belong to some container are sorted into a single STL instance with
- *			the name "global to STL".
+ *			name + class_name "global to library". Library methods which do not
+ *			belong to some container are sorted into a single Library instance with
+ *			the name "global to Library".
  *				ModernCpp has a container of strings for pros and a container of
  *			strings for cons. There's one ModernCpp instance for each modern c++
  *			programming technique (ex smart pointers,
@@ -48,7 +48,7 @@ class Concept: public Util	//ABC
 		virtual void remove(string = "");
 		//contains website, method, pro or con
 		virtual bool contains(string&) const =0;	//pure virtual//ABC
-		//string arg used to search for STL method or PythonLib class 
+		//string arg used to search for Library method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
 	protected:
@@ -67,17 +67,16 @@ class Concept: public Util	//ABC
 		void remove_site(void);
 };
 
-/*	Each STL container class gets one STL object instance, and there is one
- * STL instance for holding any STL methods that do not belong to a container
- * (such as std::min_element)
+/*	STL and PythonLib class are Libraries, and there is one
+ * Library instance for holding any methods that do not belong to a class
+ * (such as std::min_element for STL or numpy.sin for PythonLib).
+ *	In STL, this is indicated by name == "global to library".
+ *	In PythonLib, this is indicated by class_name == "global to library".
  *	SHOULD BE UNIQUE BASED ON name FIELD IN CLIENT CODE (operator==)
  */
-class STL: public Concept
+class Library: public Concept
 {
 	public:
-		//default constructor acceptable?
-
-		//need a unique derived method TODO
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false);	  //calls setters/adders
 		virtual void add(string = "");								//add method
@@ -93,9 +92,19 @@ class STL: public Concept
 		void remove_method(void);
 
 	private:
-		void add_stl(void);	 	//wrappers kept in for extensibility/uniformity
-		void edit_stl(void); 	//called by edit as subroutinue
-		void remove_stl(void);
+		void add_library(void);	 	//wrappers kept in for extensibility/uniformity
+		void edit_library(void); 	//called by edit as subroutinue
+		void remove_library(void);
+};
+
+class STL: public Library
+{
+	public:
+		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
+		//returns whether descriptions match partially?
+		//bool has_similar_purpose(const PythonLib& plib) const;
+		//returns...
+		void copy_methods(const STL&);
 };
 
 /*	Each Python library class gets many PythonLib instances with the same base
@@ -105,11 +114,9 @@ class STL: public Concept
  * whose class_name string is "global to library".
  *	SHOULD BE UNIQUE BASED ON class_name FIELD IN CLIENT CODE (operator==)
  */
-class PythonLib: public STL
+class PythonLib: public Library
 {
 	public:
-		//default constructor works
-
 		bool operator< (const PythonLib& op2) const;
 		//not sure about this, prob not a good move for use in tree-by-name
 		//bool operator==(const PythonLib& op2) const;
@@ -121,9 +128,7 @@ class PythonLib: public STL
 		bool is_object_oriented(void);
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false, bool = false);
-		//virtual void add(string = "");							    //add method
 		virtual void edit(string = "");				   //edit method, class name
-		//virtual void remove(string = "");						 //remove method
 		virtual bool contains(string&) const; //part. match class/meth name/desc
 
 	private:
@@ -132,10 +137,6 @@ class PythonLib: public STL
 		void set_class_name(void);
 		void add_pythonlib(void);
 		void edit_pythonlib(string = ""); //called by edit as subroutine
-		//void remove_pythonlib(void);
-		//void add_method(void);
-		//void edit_method(void);
-		//void remove_method(void);
 };
 
 /*	Each modern c++ technique gets one ModernCpp instance, with a container of
@@ -147,7 +148,7 @@ class ModernCpp: public Concept
 	public:
 		//default constructor acceptable?
 
-		string check_applicability(string&); //returns all pros and cons from
+		string check_applicability(string = ""); //returns all pros and cons from
 										//any ModernCpp instance if they contain
 										//the string arg+concatenating them with
 										//double-newlines as separators
@@ -162,7 +163,9 @@ class ModernCpp: public Concept
 		set<string> pros;
 		set<string> cons;
 
-		void edit_moderncpp(void); //called by edit as subroutine
+		void add_moderncpp(void);
+		void edit_moderncpp(void);
+		void remove_moderncpp(void);
 		void add_pro_or_con(void);
 		void edit_pro_or_con(void);
 		void remove_pro_or_con(void);

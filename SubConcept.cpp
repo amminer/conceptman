@@ -57,7 +57,7 @@ bool Website::operator==(const Website& op2) const
 {
 	return url == op2.url; //TODO partial matching
 }
-
+;
 bool Website::operator==(const string& op2) const
 {
 	return url == op2; //TODO partial matching
