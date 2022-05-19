@@ -1,3 +1,9 @@
+#include "Concept.h"
+#include <iostream>
+#include <forward_list>
+
+using namespace std;
+
 /*	Amelia Miner				5/17/2022
  *	cs202, section 003
  *	FILE:		RBT.h
@@ -25,38 +31,50 @@
  *		n >= 2^(h/2) - 1
  */
 
-enum Color {black, red};
+typedef forward_list<Concept> List;
 
 class Node
 {
 	public:
 		Node(void);
+		Node(const Node& src);
 		~Node(void);
+
+		Node& operator=(const Node& op2);
+		friend ostream& operator<<(ostream& out, const Node& op2);
 
 		void get_left(void);
 		void get_right(void);
-		void get_concept(void);
+		void get_data(void);
 		void set_left(void);
 		void set_right(void);
-		void set_concept(void);
+		void set_data(Concept&);
 
 		recolor(void);
-		rotate_left(void);	//TODO members of Node or RBT?
-		rotate_right(void);	//TODO members of Node or RBT?
+		rotate_left(void);
+		rotate_right(void);
+
 	private:
+		bool color;		//true=red, false=black
 		Node* left;
 		Node* right;
-		Color color;
-		Concept data;
-}
+		Node* parent;
+		List* data;
+
+		get_data(Concept*);		//recurse over each Concept within a list
+};								//TODO more recursive helpers?
 
 class RBT
 {
 	public:
 		RBT(void);
+		RBT(const RBT& src);
 		~RBT(void);
 
-		insert(//TODO	; //may require rotation
+		RBT& operator=(const RBT& op2);
+		friend ostream& operator<<(ostream& out, const BST& op2); //maybe?
+
+		insert(const Concept&); //may require rotation
 		display(void);		//TODO
 		remove_all(void);	//TODO
 
@@ -69,13 +87,12 @@ class RBT
 	private:
 		Node* root;
 
-		insert(Node*);		//TODO
-		display(Node*);		//TODO
-		remove_all(Node*);	//TODO
-
+		//recursive helpers
+		insert(Node*);					//TODO
+		display(Node*);					//TODO
+		remove_all(Node*);				//TODO
 		bool contains(string&, Node*);	//TODO
 		Node* find(string&, Node*);		//TODO
 		Node* find_min(Node*);			//TODO
 		Node* find_max(Node*);			//TODO
-}
-
+};

@@ -13,12 +13,33 @@
 /*			CLASS NODE			*/
 
 Node::Node(void)
-	: left(nullptr), right(nullptr), color(red) {} //red on insertion
+	: color(true),		left(nullptr),	right(nullptr) //red on insertion
+	  parent(nullptr),	data(nullptr)	{}
 
 Node::~Node(void)
 {
+	if (data)
+		delete data;
+}
+
+Node::Node(const Node& src)
+{
 	//TODO
 }
+
+/* 	OPERATORS		*/
+
+Node& operator=(const Node& op2)
+{
+	//TODO
+}
+
+ostream& operator<<(ostream& out, const Node& op2) //friend
+{
+	//TODO
+}
+
+/*	PUBLIC METHODS	*/
 
 void Node::get_left(void)
 {
@@ -52,10 +73,7 @@ void Node::set_concept(void)
 
 void Node::recolor(void)
 {
-	if (color == red)
-		color = black;
-	else
-		color = red;
+	color = !color;
 }
 
 void Node::rotate_left(void)
@@ -64,6 +82,120 @@ void Node::rotate_left(void)
 }
 
 void Node::rotate_right(void)
+{
+	//TODO
+}
+
+/*	PRIVATE METHODS	*/
+
+//TODO
+
+/*			CLASS RBT			*/
+
+RBT::RBT(void)
+	: root(nullptr) {}
+
+RBT::RBT(const RBT& src)
+{
+	//TODO
+}
+
+RBT::~RBT(void)
+{
+	remove_all();
+}
+
+/* 	OPERATORS		*/
+
+RBT& operator=(const RBT& op2)
+{
+	//TODO
+}
+
+ostream& operator<<(ostream& out, const BST& op2) //friend
+{
+	//TODO maybe not
+}
+
+/*	PUBLIC METHODS	*/
+
+//TODO
+
+insert(const Concept&) //may require rotation
+{
+	//TODO the big one
+}
+
+void RBT::display(void)
+{
+	//TODO in-order traversal
+}
+
+remove_all(void)
+{
+	//TODO post-order traversal
+}
+
+bool is_empty(void)
+{
+	//TODO
+}
+
+bool contains(string&)
+{
+	//TODO
+}
+
+Concept& find(string&)
+{
+	//TODO
+}
+
+Concept& find_min(void)
+{
+	//TODO
+}
+
+Concept& find_max(void)
+{
+	//TODO
+}
+
+
+/*	PRIVATE METHODS	*/
+//recursive helpers
+
+insert(Node*)
+{
+	//TODO
+}
+
+display(Node*)
+{
+	//TODO
+}
+
+remove_all(Node*)
+{
+	//TODO
+}
+
+bool contains(string&, Node*)
+{
+	//TODO
+}
+
+Node* find(string&, Node*)
+{
+	//TODO
+}
+
+Node* find_min(Node*)
+{
+	//TODO
+}
+
+Node* find_max(Node*)
 {
 	//TODO
 }
