@@ -16,25 +16,33 @@
 
 Node::Node(void)
 	: color(true),		left(nullptr),	right(nullptr), //red on insertion
-	  parent(nullptr)	{}
+	  parent(nullptr),	data(nullptr)	{}
 
-//copy constructor copies data via = AND position in tree
+Node::~Node(void)
+{
+	if (data)
+		delete [] data;
+}
+
+//copy constructor copies data via = AND position in tree TODO right way?
 Node::Node(const Node& src)
-	: color(src.color),		left(src.left),	right(src.right),
-	  parent(src.parent),	data(src.data)	{}
+	: color(true),		left(nullptr),	right(nullptr),
+	  parent(nullptr),	data(nullptr)
+{
+	//TODO test
+	*this = src;
+}
 
 /* 	OPERATORS		*/
 
-// = sets only data, does not copy color or position
+// = sets only data
 Node& Node::operator=(const Node& op2)
 {
+	//TODO test
 	if (this != &op2){
-		/*
-		color = op2.color;
-		left = op2.left;
-		right = op2.right;
-		parent = op2.parent;
-		*/
+		if (data)
+			delete data;
+		data = new List;
 		data = op2.data;
 	}
 	return *this;
@@ -42,11 +50,12 @@ Node& Node::operator=(const Node& op2)
 
 ostream& operator<<(ostream& out, const Node& op2) //friend
 {
+	//TODO
 	//temp for testing
 	out << "NODE AT " << &op2 << ", COLOR:" << op2.color << ", LEFT:" << op2.left << ", RIGHT:" << op2.right
 		<< ", PARENT:" << op2.parent << ", DATA:\n";
-	auto it = op2.data.begin();
-	auto end = op2.data.end();
+	L_iterator it = op2.data->begin();
+	L_iterator end = op2.data->end();
 	while (it != end){
 		out << **it << '\n';
 		++it;
@@ -80,13 +89,13 @@ Node*& Node::get_right(void)
 	return right;
 }
 
-List Node::get_data(void) const
+List* Node::get_data(void) const
 {
 	//TODO test
 	return data;
 }
 
-List& Node::get_data(void)
+List*& Node::get_data(void)
 {
 	//TODO test
 	return data;
@@ -107,18 +116,23 @@ void Node::set_right(Node* new_right)
 //add a concept to the internal list
 void Node::add_data(const Concept& new_concept)
 {
-	//TODO is this the way?
+	//TODO test
+	ModernCpp* new_m;
+	PythonLib* new_p;
+	STL* new_s;
+	if (!data)
+		data = new List();
 	if (auto m = dynamic_cast<const ModernCpp*>(&new_concept); m){
-		shared_ptr<ModernCpp> new_m{new ModernCpp(*m)};
-		data.push_front(new_m);
+		new_m = new ModernCpp(*m);
+		data->push_front(new_m);
 	}
 	else if (auto p = dynamic_cast<const PythonLib*>(&new_concept); p){
-		shared_ptr<PythonLib> new_p{new PythonLib(*p)};
-		data.push_front(new_p);
+		new_p = new PythonLib(*p);
+		data->push_front(new_p);
 	}
 	else if (auto s = dynamic_cast<const STL*>(&new_concept); s){
-		shared_ptr<STL> new_s{new STL(*s)};
-		data.push_front(new_s);
+		new_s = new STL(*s);
+		data->push_front(new_s);
 	}
 }
 
@@ -127,20 +141,20 @@ void Node::add_data(const Concept& new_concept)
 void Node::remove_data(const Concept& key)
 {
 	//TODO test
-	shared_ptr<Concept> to_remove{nullptr};
-	if (data.empty())
+	Concept* to_remove {nullptr};
+	if (!data)
 		return;
 	to_remove = find_data(key);
 	if (to_remove)
-		data.remove(to_remove);
+		data->remove(to_remove);
 }
 
-shared_ptr<Concept> Node::find_data(const Concept& key)
+Concept* Node::find_data(const Concept& key)
 {
 	//TODO test
-	shared_ptr<Concept> ret {nullptr};
-	if (!data.empty())
-		ret = find_data(key, data.begin(), data.end());
+	Concept* ret {nullptr};
+	if (data)
+		ret = find_data(key, data->begin(), data->end());
 	return ret;
 }
 
@@ -148,7 +162,9 @@ shared_ptr<Concept> Node::find_data(const Concept& key)
 void Node::set_data(const List& new_list)
 {
 	//TODO test
-	data = new_list;
+	if (data)
+		delete data;
+	data = new List(new_list);
 }
 
 void Node::recolor(void)
@@ -170,12 +186,9 @@ void Node::rotate_right(void)
 
 //TODO
 
-//This should use iterators instead of returning a pointer, but
-//we have not gone over them in class...
-//Could also use exception handling, but would rather check a pointer in
-//client code than have to code and catch yet another exception
-shared_ptr<Concept> Node::find_data(const Concept& key, L_iterator list, L_iterator end)
+Concept* Node::find_data(const Concept& key, L_iterator list, L_iterator end)
 {
+	//TODO test
 	if (**list == key){
 		return *list;
 	}

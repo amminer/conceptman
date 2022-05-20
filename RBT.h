@@ -1,6 +1,8 @@
 #include "Concept.h"
 #include <iostream>
 #include <forward_list>
+#include <iterator>
+#include <memory>
 
 using namespace std;
 
@@ -31,38 +33,45 @@ using namespace std;
  *		n >= 2^(h/2) - 1
  */
 
-typedef forward_list<Concept> List;
+typedef forward_list<shared_ptr<Concept>> List;
+typedef forward_list<shared_ptr<Concept>>::iterator L_iterator;
 
 class Node
 {
 	public:
 		Node(void);
 		Node(const Node& src);
-		~Node(void);
 
 		Node& operator=(const Node& op2);
 		friend ostream& operator<<(ostream& out, const Node& op2);
 
-		void get_left(void);
-		void get_right(void);
-		void get_data(void);
-		void set_left(void);
-		void set_right(void);
-		void set_data(Concept&);
+		Node* get_left(void) const;
+		Node*& get_left(void);
+		Node* get_right(void) const;
+		Node*& get_right(void);
+		List get_data(void) const;
+		List& get_data(void);
+		void set_left(Node*);
+		void set_right(Node*);
+		void set_data(const List&);
+		void add_data(const Concept&);
+		void remove_data(const Concept&);
+		shared_ptr<Concept> find_data(const Concept&);
 
-		recolor(void);
-		rotate_left(void);
-		rotate_right(void);
+		void recolor(void);
+		void rotate_left(void);
+		void rotate_right(void);
 
 	private:
 		bool color;		//true=red, false=black
 		Node* left;
 		Node* right;
 		Node* parent;
-		List* data;
+		List data;
 
-		get_data(Concept*);		//recurse over each Concept within a list
-};								//TODO more recursive helpers?
+		void remove_data(Concept&, L_iterator, L_iterator);
+		shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
+};
 
 class RBT
 {
@@ -72,12 +81,13 @@ class RBT
 		~RBT(void);
 
 		RBT& operator=(const RBT& op2);
-		friend ostream& operator<<(ostream& out, const BST& op2); //maybe?
+		friend ostream& operator<<(ostream& out, const RBT& op2); //maybe?
 
-		insert(const Concept&); //may require rotation
-		display(void);		//TODO
-		remove_all(void);	//TODO
+		void insert(const Concept&); //may require rotation
+		void display(void);		//TODO
+		void remove_all(void);	//TODO
 
+		Node*& get_root(void);	//pls work
 		bool is_empty(void);		//TODO
 		bool contains(string&);		//TODO
 		Concept& find(string&);		//TODO
@@ -88,9 +98,10 @@ class RBT
 		Node* root;
 
 		//recursive helpers
-		insert(Node*);					//TODO
-		display(Node*);					//TODO
-		remove_all(Node*);				//TODO
+		void copy_all(Node*, Node*&);
+		void insert(Node*);					//TODO
+		void display(Node*);					//TODO
+		void remove_all(Node*);				//TODO
 		bool contains(string&, Node*);	//TODO
 		Node* find(string&, Node*);		//TODO
 		Node* find_min(Node*);			//TODO

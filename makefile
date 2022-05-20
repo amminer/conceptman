@@ -1,6 +1,6 @@
-CFLAGS=     -g -Wall -std=c++17
+CFLAGS=     -g -std=c++17
 VFLAGS=		--leak-check=full
-SOURCES=	tests/testRBT.cpp RBT.cpp Concept.cpp
+SOURCES=	tests/testRBT.cpp RBT.cpp Concept.cpp SubConcept.cpp
 EXE=     	main.out
 CC=			g++
 
