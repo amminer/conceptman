@@ -30,6 +30,7 @@ class Concept: public Util	//ABC
 {
 	public:
 		Concept(void);
+		Concept(string); //for key in search via ModernCpp
 		//virtual ~Concept(void);
 
 		bool operator< (const Concept& op2) const;
@@ -101,9 +102,6 @@ class STL: public Library
 {
 	public:
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
-		//returns whether descriptions match partially?
-		//bool has_similar_purpose(const PythonLib& plib) const;
-		//returns...
 		void copy_methods(const STL&);
 };
 
@@ -132,9 +130,9 @@ class PythonLib: public Library
 		virtual bool contains(string&) const; //part. match class/meth name/desc
 
 	private:
-		string class_name;
+		string lib_name;
 
-		void set_class_name(void);
+		void set_lib_name(void);
 		void add_pythonlib(void);
 		void edit_pythonlib(string = ""); //called by edit as subroutine
 };
@@ -146,8 +144,9 @@ class PythonLib: public Library
 class ModernCpp: public Concept
 {
 	public:
-		//default constructor acceptable?
-
+		ModernCpp(void);
+		ModernCpp(string); //used as key in searches since I can't instantiate 
+						   //the base class
 		string check_applicability(string = ""); //returns all pros and cons from
 										//any ModernCpp instance if they contain
 										//the string arg+concatenating them with

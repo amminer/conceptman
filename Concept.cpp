@@ -15,6 +15,9 @@
 Concept::Concept(void)
 	: name("NOT SET"), description("NOT SET") {}
 
+Concept::Concept(string key_name)
+	: name(key_name), description("NOT SET (key)") {}
+
 bool Concept::operator==(const Concept& op2) const
 {
 	return name == op2.name;
@@ -63,7 +66,7 @@ void Concept::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count = 0;
-	if (name != "none")
+	if (name != "global")
 		out << name;
 	out << "~~~*/\n/*~Description~*/\n"
 		<< description << "\n/*~Websites~*/";
@@ -350,7 +353,10 @@ bool Library::setup(bool base_set_up, bool method_added)
 		if (! base_set_up){
 			//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
 			//	cout << "Setting up a new STL...\n"; //testing, will refine 
-			ret = Concept::setup();
+			cout << "For the class of the library to which these methods\n"
+				 << "will belong, unless these methods are global to the\n"
+				 << "library in which case enter \"global\",\n";	//TODO
+			ret = Concept::setup();			//worst prompt I've ever written
 			base_set_up = true;
 		}
 		if (! method_added){
@@ -574,7 +580,7 @@ void Library::remove_method(void)
 void STL::display(ostream& out) const    //"polymorphic" op<<
 {
 	//this is a rough draft for testing
-	if (name == "none")
+	if (name == "global")
 		out << "\n/*~~~Global STL Methods";
 	else
 		out << "\n/*~~~STL Methods belonging to std::";
@@ -602,7 +608,7 @@ bool PythonLib::operator==(const PythonLib& op2) const
 
 bool PythonLib::operator<(const PythonLib& op2) const
 {
-	return (class_name < op2.class_name);
+	return (lib_name < op2.lib_name);
 }
 
 /*	PUBLIC METHODS	*/
@@ -610,21 +616,21 @@ bool PythonLib::operator<(const PythonLib& op2) const
 void PythonLib::display(ostream& out) const
 {
 	//this is a rough draft for testing
-	if (class_name == "none")
-		out << "\n/*~~~Global Python Library Methods for ";
+	if (name == "global")
+		out << "\n/*~~~Python Library Methods Global to " << lib_name;
 	else
-		cout << "\n/*~~~Methods belonging to class " << class_name
-			 << "\n                       of library ";
+		cout << "\n/*~~~Python Library Methods of\n"
+			 <<   "Library " << lib_name << ", belonging to class ";
 	Library::display(out); //name, desc, websites, methods handled here
 }
 
-bool PythonLib::setup(bool base_set_up, bool class_name_set, bool method_added)
+bool PythonLib::setup(bool base_set_up, bool lib_name_set, bool method_added)
 {
 	bool ret {true};
 	try{
-		if (!class_name_set){
-			set_class_name();
-			class_name_set = true;
+		if (!lib_name_set){
+			set_lib_name();
+			lib_name_set = true;
 		}
 		if (! base_set_up){
 			ret = Library::setup();
@@ -635,7 +641,7 @@ bool PythonLib::setup(bool base_set_up, bool class_name_set, bool method_added)
 	catch (invalid_argument& bad_input){
 		disp_invalid_input((string) bad_input.what());
 		cout << "Please try again.\n";
-		return setup(base_set_up, class_name_set, method_added); //finish setup
+		return setup(base_set_up, lib_name_set, method_added); //finish setup
 	}
 
 	catch (const char*& user_cancels){
@@ -670,7 +676,7 @@ bool PythonLib::contains(string& key) const
 	bool ret {false};
 	if (name.find(key) != string::npos)
 		ret = true;
-	else if (class_name.find(key) != string::npos)
+	else if (lib_name.find(key) != string::npos)
 		ret = true;
 	else{
 		for (const Method& m: methods){
@@ -683,25 +689,23 @@ bool PythonLib::contains(string& key) const
 	return ret;
 }
 
-//returns whether class name is anything but "none"
+//returns whether class name is anything but "global"
 //std::map tracks each PythonLib::name and maps it to a boolean set by
 //calls to each PyLib::is_o_o inside ConceptManager. Allows user to see
 //which libraries are purely OO... not my favorite but it works... todo
 bool PythonLib::is_object_oriented(void)
 {
 	bool ret {true};
-	if (class_name == "none")
+	if (name == "global")
 		ret = false;
 	return ret;
 }
 
 /*	PRIVATE METHODS	*/
-void PythonLib::set_class_name(void)
+void PythonLib::set_lib_name(void)
 {
-	cout << "Enter a class name, or {none} if you intend to add methods\n"
-		 << "that don't belong to a class within this library,\n"
-		 << "or {!q} to cancel: ";
-	class_name = get_string(1);		//may throw
+	cout << "Enter a library name, or {!q} to cancel: ";
+	lib_name = get_string(1);		//may throw
 }
 
 void PythonLib::edit_pythonlib(string _choice)
@@ -709,11 +713,11 @@ void PythonLib::edit_pythonlib(string _choice)
 	try{
 		if (_choice == ""){
 			cout << "Would you like to edit the"
-				 << " {class name} or a {method}?\n{!q} to cancel: ";
+				 << " {library} name or a {method}?\n{!q} to cancel: ";
 			_choice = get_string(2);
 		}
-		if		(_choice == "class name")
-			set_class_name();
+		if		(_choice == "library")
+			set_lib_name();
 		else if (_choice == "method")
 			edit_method();
 		else{
@@ -737,6 +741,12 @@ void PythonLib::edit_pythonlib(string _choice)
 
 
 /*			CLASS MODERNCPP			*/
+
+ModernCpp::ModernCpp(void)
+	: Concept() {}
+
+ModernCpp::ModernCpp(string key_name)
+	: Concept(key_name) {}
 
 /*	PUBLIC METHODS	*/
 
@@ -770,6 +780,7 @@ bool ModernCpp::setup(bool base_set_up, bool pro_or_con_added)	   //set/add
 	bool ret {true};
 	try{
 		if (! base_set_up){
+			cout << "For the modern programming c++ technique,\n";
 			ret = Concept::setup();
 			base_set_up = true;
 		}

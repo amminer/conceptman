@@ -47,6 +47,8 @@ ostream& operator<<(ostream& out, const Node& op2) //friend
 		<< ", PARENT:" << op2.parent << ", DATA:\n";
 	auto it = op2.data.begin();
 	auto end = op2.data.end();
+	if (it == end)
+		out << "NONE (this would not display at all in the full program\n";
 	while (it != end){
 		out << **it << '\n';
 		++it;
@@ -122,32 +124,37 @@ void Node::add_data(const Concept& new_concept)
 	}
 }
 
-//remove a concept from the internal list;
-//returns whether found/removed
-void Node::remove_data(const Concept& key)
+/*
+remove a concept from the internal list;
+"defined" in .tpp
+template<typename T>
+void Node::remove_data(const string& key_name)
 {
-	//TODO test
 	shared_ptr<Concept> to_remove{nullptr};
 	if (data.empty())
 		return;
-	to_remove = find_data(key);
-	if (to_remove)
-		data.remove(to_remove);
+	to_remove = find_data(key_name);
+	if (to_remove){
+		if (dynamic_pointer_cast<T>(to_remove)){
+			data.remove(to_remove);
+		}
+	}
 }
+*/
 
-shared_ptr<Concept> Node::find_data(const Concept& key)
+shared_ptr<Concept> Node::find_data(const string& key_name)
 {
-	//TODO test
 	shared_ptr<Concept> ret {nullptr};
-	if (!data.empty())
+	if (!data.empty()){
+		auto key = ModernCpp(key_name); //don't instantiate unless searching
 		ret = find_data(key, data.begin(), data.end());
+	}
 	return ret;
 }
 
 //resets this list to = new_list
 void Node::set_data(const List& new_list)
 {
-	//TODO test
 	data = new_list;
 }
 
@@ -168,19 +175,17 @@ void Node::rotate_right(void)
 
 /*	PRIVATE METHODS	*/
 
-//TODO
-
 //This should use iterators instead of returning a pointer, but
 //we have not gone over them in class...
 //Could also use exception handling, but would rather check a pointer in
 //client code than have to code and catch yet another exception
 shared_ptr<Concept> Node::find_data(const Concept& key, L_iterator list, L_iterator end)
 {
-	if (**list == key){
+	if (list == end)
+		return nullptr;
+	else if (**list == key){
 		return *list;
 	}
-	else if (list == end)
-		return nullptr;
 	else
 		return find_data(key, ++list, end);
 }
@@ -272,11 +277,6 @@ Concept& RBT::find_max(void)
 	//TODO
 }
 
-Node*& RBT::get_root(void)
-{
-	return root;
-}
-
 /*	PRIVATE METHODS	*/
 //recursive helpers
 
@@ -323,3 +323,4 @@ Node* RBT::find_max(Node*)
 {
 	//TODO
 }
+

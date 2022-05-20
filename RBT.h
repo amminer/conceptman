@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Concept.h"
 #include <iostream>
 #include <forward_list>
@@ -55,8 +57,9 @@ class Node
 		void set_right(Node*);
 		void set_data(const List&);
 		void add_data(const Concept&);
-		void remove_data(const Concept&);
-		shared_ptr<Concept> find_data(const Concept&);
+		 //client must specify what type of concept to rm
+		template<typename T> void remove_data(const string&);
+		shared_ptr<Concept> find_data(const string&);
 
 		void recolor(void);
 		void rotate_left(void);
@@ -69,7 +72,7 @@ class Node
 		Node* parent;
 		List data;
 
-		void remove_data(Concept&, L_iterator, L_iterator);
+		//void remove_data(Concept&, L_iterator, L_iterator);
 		shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
 };
 
@@ -87,7 +90,6 @@ class RBT
 		void display(void);		//TODO
 		void remove_all(void);	//TODO
 
-		Node*& get_root(void);	//pls work
 		bool is_empty(void);		//TODO
 		bool contains(string&);		//TODO
 		Concept& find(string&);		//TODO
@@ -107,3 +109,5 @@ class RBT
 		Node* find_min(Node*);			//TODO
 		Node* find_max(Node*);			//TODO
 };
+
+#include "RBT.tpp" //template function definition
