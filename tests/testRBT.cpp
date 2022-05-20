@@ -37,6 +37,6 @@ void testRBT(void)
 
 int main(void)
 {
-	//testNode(); //hacked into the dirt
+	testNode(); //hacked into the dirt
 	testRBT(); //TODO
 }

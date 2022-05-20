@@ -57,9 +57,9 @@ class Node
 		void set_right(Node*);
 		void set_data(const List&);
 		void add_data(const Concept&);
-		 //client must specify what type of concept to rm
+		 //client must specify what type of concept to rm or find
 		template<typename T> void remove_data(const string&);
-		shared_ptr<Concept> find_data(const string&);
+		template<typename T> shared_ptr<Concept> find_data(const string&);
 
 		void recolor(void);
 		void rotate_left(void);
@@ -73,7 +73,7 @@ class Node
 		List data;
 
 		//void remove_data(Concept&, L_iterator, L_iterator);
-		shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
+		template<typename T> shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
 };
 
 class RBT
