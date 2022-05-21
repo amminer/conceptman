@@ -104,6 +104,7 @@ class Library: public Concept
 class STL: public Library
 {
 	public:
+		virtual bool setup(void);
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		void copy_methods(const STL&);
 };

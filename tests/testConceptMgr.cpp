@@ -2,5 +2,6 @@
 
 int main(void)
 {
+	ConceptMgr cm;
 	return 0;
 }

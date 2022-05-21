@@ -78,7 +78,7 @@ void Concept::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	size_t count = 0;
-	if (name != "global")
+	if (! (name == "stl globals" or name == "python globals"))
 		out << name;
 	out << "~~~*/\n/*~Description~*/\n"
 		<< description << "\n/*~Websites~*/";
@@ -589,14 +589,24 @@ void Library::remove_method(void)
 
 /*			CLASS STL			*/
 
+bool STL::setup(void)
+{
+	bool ret {true};
+	ret = Library::setup();
+	if (name == "global")
+		name = "stl globals";
+	return ret;
+}
+
 void STL::display(ostream& out) const    //"polymorphic" op<<
 {
 	//this is a rough draft for testing
-	if (name == "global")
-		out << "\n/*~~~Global STL Methods";
+	if (name == "stl globals")
+		out << "/*~~~Global STL Methods";
 	else
-		out << "\n/*~~~STL Methods belonging to std::";
+		out << "/*~~~STL Methods belonging to std::";
 	Library::display(out); //name, desc, websites, methods handled here
+	cout << '\n';
 }
 
 //Many standard library classes share similar interfaces;
@@ -618,7 +628,6 @@ bool PythonLib::operator==(const PythonLib& op2) const
 }
 */
 
-
 PythonLib::PythonLib(void)
 	: Library(), lib_name("NOT SET") {}
 
@@ -632,11 +641,12 @@ bool PythonLib::operator<(const PythonLib& op2) const
 void PythonLib::display(ostream& out) const
 {
 	//this is a rough draft for testing
-	if (name == "global")
-		out << "\n/*~~~Python Methods Global to " << lib_name;
+	if (name == "python globals")
+		out << "/*~~~Python Methods Global to " << lib_name;
 	else
-		cout << "\n/*~~~Python Library Methods of " << lib_name << " in class ";
+		cout << "/*~~~Python Library Methods of " << lib_name << " in class ";
 	Library::display(out); //name, desc, websites, methods handled here
+	cout << '\n';
 }
 
 bool PythonLib::setup(bool base_set_up, bool lib_name_set, bool method_added)
@@ -649,6 +659,8 @@ bool PythonLib::setup(bool base_set_up, bool lib_name_set, bool method_added)
 		}
 		if (! base_set_up){
 			ret = Library::setup();
+			if (name == "global")
+				name = "python globals";
 			base_set_up = true;
 		}
 	}
@@ -704,14 +716,15 @@ bool PythonLib::contains(string& key) const
 	return ret;
 }
 
-//returns whether class name is anything but "global"
-//std::map tracks each PythonLib::name and maps it to a boolean set by
+//	Returns whether class name is anything but "global" value (set to
+//the string "python globals" by setup)
+//	std::map tracks each PythonLib::name and maps it to a boolean set by
 //calls to each PyLib::is_o_o inside ConceptManager. Allows user to see
 //which libraries are purely OO... not my favorite but it works... todo
 bool PythonLib::is_object_oriented(void)
 {
 	bool ret {true};
-	if (name == "global")
+	if (name == "python globals")
 		ret = false;
 	return ret;
 }
@@ -788,6 +801,7 @@ void ModernCpp::display(ostream& out) const
 		}
 		count = 0;
 	}
+	cout << '\n';
 }
 
 bool ModernCpp::setup(bool base_set_up, bool pro_or_con_added)	   //set/add

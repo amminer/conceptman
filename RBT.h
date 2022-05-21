@@ -49,6 +49,9 @@ class Node
 		Node& operator=(const Node& op2);
 		friend ostream& operator<<(ostream& out, const Node& op2);
 
+		void collapse(void);
+		void expand(void);	//for display
+
 		Node* get_parent(void) const;
 		Node*& get_parent(void);
 		Node* get_left(void) const;
@@ -75,6 +78,7 @@ class Node
 		Node* left;
 		Node* right;
 		Node* parent;
+		bool collapsed;
 		List data;
 
 		//void remove_data(Concept&, L_iterator, L_iterator);
@@ -92,11 +96,11 @@ class RBT
 		friend ostream& operator<<(ostream& out, const RBT& op2);
 
 		void insert(const Concept&);
-		void display(void) const;
+		void display(ostream& = cout) const;
 		void remove_all(void);
-
 		bool is_empty(void);
 		Concept* find(string&) const;
+		Node* find_node(string&) const;
 
 		Node* get_root(void);			//TODO remove after testing
 
@@ -111,6 +115,7 @@ class RBT
 		void in_order_ostream_dump(ostream& out, const Node* tree) const;
 		void remove_all(Node*&);
 		Concept* find(string&, Node*) const;
+		Node* find_node(string&, Node*) const;
 		Node* find_min(void);
 		Node* find_min(Node*);
 		Node* find_max(void);

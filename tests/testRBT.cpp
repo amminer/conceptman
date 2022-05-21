@@ -58,14 +58,12 @@ void testRBT(void)
 	b.set_name("dataframe");
 	c.set_name("templates");
 
-	cout << "\n\nRBT TIME - empty, then first c, then first and second c,\n"
-		 << "then edit copy of first c and insert and check result\n";
 	tree.display();
-	cout << "\nInserting 1\n";
+	cout << "Inserting 1\n";
 	tree.insert(a);
-	cout << "\nInserting 2\n";
+	cout << "Inserting 2\n";
 	tree.insert(b);
-	cout << "\nInserting 3\n";
+	cout << "Inserting 3\n\n";
 	tree.insert(c);
 	tree.display();
 	cout << "Root concept is at\n" << tree.get_root()->get_data().front().get() <<'\n';

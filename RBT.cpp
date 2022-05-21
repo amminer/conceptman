@@ -16,17 +16,17 @@
 
 Node::Node(void)
 	: color(true),		left(nullptr),	right(nullptr), //red on insertion
-	  parent(nullptr)	{}
+	  parent(nullptr),	collapsed(true)	{}
 
 //copy constructor copies data via = AND position in tree
 Node::Node(const Node& src)
-	: color(src.color),		left(src.left),	right(src.right),
-	  parent(src.parent),	data(src.data)	{}
+	: color(src.color),		left(src.left),		right(src.right),
+	  parent(src.parent),	collapsed(true),	data(src.data)		{}
 
 //inits a node to a singleton list containing src
 Node::Node(const Concept& src)
 	: color(true),		left(nullptr),	right(nullptr), //red on insertion
-	  parent(nullptr)
+	  parent(nullptr),	collapsed(true)
 {
 	add_data(src);
 }
@@ -58,6 +58,25 @@ Node& Node::operator=(const Node& op2)
 
 ostream& operator<<(ostream& out, const Node& op2) //friend
 {
+	if (!op2.data.empty()){
+		//if ostream is not cout expand all nodes?
+		string name = op2.data.front()->get_name();
+		if (!op2.collapsed)
+			out << '\n';
+		out << "//**~~~\"" << name << "\"~~~**//\n";
+		if (!op2.collapsed){
+			auto it = op2.data.begin();
+			auto end = op2.data.end();
+			while (it != end){
+				out << **it << '\n';
+				++it;
+			}
+		}
+	}
+	return out;
+	//else do nothing; do not print empty nodes, since we can't remove them...
+}
+/*
 	//temp for testing
 	out << "NODE AT " << &op2 << ", COLOR:" << op2.color << ", LEFT:" << op2.get_left() << ", RIGHT:" << op2.get_right()
 		<< ", PARENT:" << op2.get_parent() << ", DATA:";
@@ -75,8 +94,19 @@ ostream& operator<<(ostream& out, const Node& op2) //friend
 	}
 	return out;
 }
+*/
 
 /*	PUBLIC METHODS	*/
+
+void Node::collapse(void)
+{
+	collapsed = true;
+}
+
+void Node::expand(void)
+{
+	collapsed = false;
+}
 
 Node* Node::get_parent(void) const
 {
@@ -271,10 +301,7 @@ RBT& RBT::operator=(const RBT& op2)
 
 ostream& operator<<(ostream& out, const RBT& op2) //friend
 {
-	if (!op2.root)
-		out << "Tree is empty!";
-	else
-		op2.in_order_ostream_dump(out, op2.root);
+	op2.display(out);
 	return out;
 }
 
@@ -287,12 +314,12 @@ void RBT::insert(const Concept& new_c) //may require rotation
 	//fix_insert();
 }
 
-void RBT::display(void) const
+void RBT::display(ostream& out) const
 {
 	if (!root)
-		cout << "Tree is empty!\n";
+		cout << "Empty!\n";
 	else
-		in_order_ostream_dump(cout, root);
+		in_order_ostream_dump(out, root);
 	return;
 }
 bool RBT::is_empty(void)
@@ -309,6 +336,13 @@ Concept* RBT::find(string& key) const
 	Concept* ret {nullptr};
 	if (root)
 		ret = find(key, root); 
+	return ret;
+}
+Node* RBT::find_node(string& key) const
+{
+	Node* ret {nullptr};
+	if (root)
+		ret = find_node(key, root); 
 	return ret;
 }
 
@@ -400,7 +434,7 @@ void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
 		return;
 	else{
 		in_order_ostream_dump(out, tree->get_left());
-		out << *tree << '\n';
+		out << *tree;
 		in_order_ostream_dump(out, tree->get_right());
 	}
 }
@@ -432,6 +466,20 @@ Concept* RBT::find(string& key, Node* node) const
 		ret = find(key, node->get_left());
 		if (!ret)
 			ret = find(key, node->get_right());
+	}
+	return ret;
+}
+Node* RBT::find_node(string& key, Node* node) const
+{
+	Node* ret {nullptr};
+	if (!node)
+		ret = nullptr; //unnecessary but explicit
+	else if (Concept* that = node->find_data<Concept>(key).get(); that)
+		ret = node;
+	else{
+		ret = find_node(key, node->get_left());
+		if (!ret)
+			ret = find_node(key, node->get_right());
 	}
 	return ret;
 }
