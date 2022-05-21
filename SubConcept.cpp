@@ -38,6 +38,8 @@ string Util::get_string(const int min, const int max) const
 	return _ret;
 }
 
+//should've overloaded to take char* instead of (string)ing
+//char*s on calls to this in client code
 void Util::disp_invalid_input(const string bad_input) const
 {
 	cout << "Bad input! \"" << bad_input << "\" is not valid.\n";
@@ -55,12 +57,12 @@ bool Website::operator<(const Website& op2) const
 
 bool Website::operator==(const Website& op2) const
 {
-	return url == op2.url; //TODO partial matching
+	return url == op2.url;
 }
 ;
 bool Website::operator==(const string& op2) const
 {
-	return url == op2; //TODO partial matching
+	return url == op2;
 }
 
 ostream& operator<<(ostream& out, const Website& op2)
@@ -87,7 +89,7 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 		}
 		if (! rating_set){
 			set_rating();
-			rating_set = true; //unnecessary to check last input? TODO
+			rating_set = true; //unnecessary to check last input?
 		}
 	}
 
@@ -144,6 +146,11 @@ void Website::edit(string _choice)
 const string& Website::get_url(void) const
 {
 	return url;
+}
+
+const string& Website::get_desc(void) const
+{
+	return description;
 }
 
 /*	PRIVATE METHODS	*/
@@ -222,7 +229,7 @@ bool Method::setup(bool name_set, bool desc_set)
 		}
 		if (! desc_set){
 			set_description();
-			desc_set = true; //unnecessary to check last input? TODO
+			desc_set = true; //unnecessary to check last input?
 		}
 	}
 
@@ -277,6 +284,11 @@ void Method::edit(string _choice)
 const string& Method::get_name(void) const
 {
 	return name;
+}
+
+const string& Method::get_desc(void) const
+{
+	return description;
 }
 
 /*	PRIVATE METHODS	*/

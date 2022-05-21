@@ -56,6 +56,7 @@ class Website: public Util
 		bool setup(bool = false, bool = false, bool = false);
 		void edit(string = "");
 		const string& get_url(void) const;
+		const string& get_desc(void) const;
 
 	private:
 		//these throw exceptions...
@@ -86,6 +87,7 @@ class Method: public Util
 		bool setup(bool = false, bool = false);	//calls all private setters
 		void edit(string = "");	//user chooses to set name or description
 		const string& get_name(void) const;
+		const string& get_desc(void) const;
 
 	private:
 		void set_name();			//min len 1

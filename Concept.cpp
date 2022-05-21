@@ -367,7 +367,7 @@ bool Library::setup(bool base_set_up, bool method_added)
 			//	cout << "Setting up a new STL...\n"; //testing, will refine 
 			cout << "For the class of the library to which these methods\n"
 				 << "will belong, unless these methods are global to the\n"
-				 << "library in which case enter \"global\",\n";	//TODO
+				 << "library in which case enter \"global\",\n";
 			ret = Concept::setup();			//worst prompt I've ever written
 			base_set_up = true;
 		}
@@ -446,14 +446,25 @@ void Library::remove(string _choice)
 	return;
 }
 
-bool Library::contains(string& key) const
+bool Library::contains(const string& key) const
 {
 	bool ret {false};
-	if (name.find(key) != string::npos)
+	if (name.find(key) != string::npos
+	 or description.find(key) != string::npos)
 		ret = true;
+	else if (!ret){
+		for (const Website& w: websites){
+			if (w.get_url().find(key) != string::npos
+			 or w.get_desc().find(key) != string::npos){
+				ret = true;
+				break;
+			}
+		}
+	}
 	else{
 		for (const Method& m: methods){
-			if (m.get_name().find(key) != string::npos){
+			if (m.get_name().find(key) != string::npos
+			 or m.get_desc().find(key) != string::npos){
 				ret = true;
 				break; //is this ok to use here?
 			}
@@ -698,13 +709,22 @@ void PythonLib::edit(string _choice)
 	return;
 }
 
-bool PythonLib::contains(string& key) const
+bool PythonLib::contains(const string& key) const
 {
 	bool ret {false};
-	if (name.find(key) != string::npos)
+	if (name.find(key)			!= string::npos
+	 or description.find(key)	!= string::npos
+	 or lib_name.find(key)		!= string::npos)
 		ret = true;
-	else if (lib_name.find(key) != string::npos)
-		ret = true;
+	else if (!ret){
+		for (const Website& w: websites){
+			if (w.get_url().find(key) != string::npos
+			 or w.get_desc().find(key) != string::npos){
+				ret = true;
+				break;
+			}
+		}
+	}
 	else{
 		for (const Method& m: methods){
 			if (m.get_name().find(key) != string::npos){
@@ -887,11 +907,21 @@ void ModernCpp::remove(string _choice)					 //remove pro or con
 }
 
 
-bool ModernCpp::contains(string& key) const
+bool ModernCpp::contains(const string& key) const
 {
 	bool ret {false};
-	if (name.find(key) != string::npos)				//check name
+	if (name.find(key) != string::npos				//check name
+	 or description.find(key) != string::npos)		//and desc
 		ret = true;
+	else if (!ret){
+		for (const Website& w: websites){
+			if (w.get_url().find(key) != string::npos
+			 or w.get_desc().find(key) != string::npos){
+				ret = true;
+				break;
+			}
+		}
+	}
 	else{											//check pros
 		for (const string& s: pros){
 			if (s.find(key) != string::npos){

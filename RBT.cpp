@@ -188,13 +188,14 @@ void Node::remove_data(const string& key_name)
 {
 	shared_ptr<Concept> to_remove{nullptr};
 	if (data.empty())
-		return;
+		return; //shouldn't ever get here based on RBT implem but have to check
 	to_remove = find_data<T>(key_name);
 	if (to_remove){
 		if (dynamic_pointer_cast<T>(to_remove)){
 			data.remove(to_remove);
 		}
-	}
+	} //check if node was left empty in RBT, remove if so
+	//fails silently? todo
 }
 */
 
@@ -231,6 +232,21 @@ void Node::rotate_left(void)
 void Node::rotate_right(void)
 {
 	//TODO
+}
+
+bool Node::has_loose_match(const string& key)
+{
+	return has_loose_match(key, data.begin(), data.end());
+}
+bool Node::has_loose_match(const string& key, L_iterator list, L_iterator end)
+{
+	if (list == end)
+		return false;
+	else if ((**list).contains(key)){
+		return true;
+	}
+	else
+		return has_loose_match(key, ++list, end);
 }
 
 /*	PRIVATE METHODS	*/
@@ -290,7 +306,6 @@ void RBT::remove_all(Node*& rem_root)
 
 RBT& RBT::operator=(const RBT& op2)
 {
-	//TODO test
 	if (this != &op2){
 		if (root)
 			remove_all(root);
@@ -331,13 +346,18 @@ bool RBT::is_empty(void)
 			
 }
 
-Concept* RBT::find(string& key) const
+/*
+"defined" in .tpp
+template<typename T>
+T* RBT::find(string& key) const
 {
-	Concept* ret {nullptr};
+	T* ret {nullptr};
 	if (root)
 		ret = find(key, root); 
 	return ret;
 }
+*/
+
 Node* RBT::find_node(string& key) const
 {
 	Node* ret {nullptr};
@@ -362,6 +382,42 @@ Node* RBT::find_max(void)
 	if (root)
 		ret = find_max(root);
 	return ret;
+}
+
+void RBT::expand_matches(const string& key)
+{
+	expand_matches(key, root);
+	return;
+}
+//this_node == root on init
+void RBT::expand_matches(const string& key, Node* this_node)
+{
+	if (this_node){
+		Node* this_left = this_node->get_left();
+		Node* this_right = this_node->get_right();
+		if (this_node->has_loose_match(key))
+			this_node->expand();
+		else
+			this_node->collapse();
+		expand_matches(key, this_left);
+		expand_matches(key, this_right);
+	}
+	return;
+}
+
+void RBT::collapse_all(void)
+{
+	collapse_all(root);
+	return;
+}
+void RBT::collapse_all(Node* this_node)
+{
+	if (this_node){
+		this_node->collapse();
+		collapse_all(this_node->get_left());
+		collapse_all(this_node->get_right());
+	}
+	return;
 }
 
 /*	PRIVATE METHODS	*/
@@ -454,21 +510,26 @@ void RBT::copy_all(Node* src, Node*& dest)
 	return;
 }
 
+/*
+"defined" in .tpp
 //preorder traversal
-Concept* RBT::find(string& key, Node* node) const
+template<typename T>
+T* RBT::find(string& key, Node* node) const
 {
-	Concept* ret {nullptr};
+	T* ret {nullptr};
 	if (!node)
 		ret = nullptr; //unnecessary but explicit
-	else if (Concept* that = node->find_data<Concept>(key).get(); that)
+	else if (T* that = node->find_data<T>(key).get(); that)
 		ret = that;
 	else{
-		ret = find(key, node->get_left());
+		ret = find<T>(key, node->get_left());
 		if (!ret)
-			ret = find(key, node->get_right());
+			ret = find<T>(key, node->get_right());
 	}
 	return ret;
 }
+*/
+
 Node* RBT::find_node(string& key, Node* node) const
 {
 	Node* ret {nullptr};

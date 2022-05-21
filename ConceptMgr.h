@@ -7,7 +7,8 @@
  *	FILE:		ConceptMgr.h
  *	PURPOSE:	Declares a main class that uses an RBT to store and manage
  * concept objects. Supports insert, display, remove_all, find by name,
- * editing and removal of concepts by name, etc TODO
+ * editing of concepts by name, etc.
+ *	Removal of nodes and therefore of concepts is not supported - see implementation for details.
  */
 
 class ConceptMgr: public Util
@@ -26,12 +27,12 @@ class ConceptMgr: public Util
 		void main_loop(bool = true, string = "_");
 		void add_concept(void);
 		void edit_concept(void);
+		void edit_or_add(Concept* to_edit);
 		void remove_topic(void);
 		void remove_concept(void);
 		void select_site(void);
 		void expand_topic(void);
 		void collapse_topic(void);
+		Concept* find_concept(bool = false, string = "", string = ""); //bool whether used for mainloop display
 		void lookup(void);
-		template<typename T>
-		void lookup_by_type(void);
 };

@@ -65,6 +65,7 @@ class Node
 		void set_right(Node*);
 		void set_data(const List&);
 		void add_data(const Concept&);
+		bool has_loose_match(const string&);
 		 //client must specify what type of concept to rm or find
 		template<typename T> void remove_data(const string&);
 		template<typename T> shared_ptr<Concept> find_data(const string&);
@@ -82,7 +83,9 @@ class Node
 		List data;
 
 		//void remove_data(Concept&, L_iterator, L_iterator);
+		//should this be shared_ptr<T>?
 		template<typename T> shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
+		bool has_loose_match(const string&, L_iterator, L_iterator);
 };
 
 class RBT
@@ -99,8 +102,10 @@ class RBT
 		void display(ostream& = cout) const;
 		void remove_all(void);
 		bool is_empty(void);
-		Concept* find(string&) const;
+		template<typename T> T* find(string&) const;
 		Node* find_node(string&) const;
+		void expand_matches(const string&);
+		void collapse_all(void);
 
 		Node* get_root(void);			//TODO remove after testing
 
@@ -114,8 +119,10 @@ class RBT
 		void fix_insert(void);			//TODO
 		void in_order_ostream_dump(ostream& out, const Node* tree) const;
 		void remove_all(Node*&);
-		Concept* find(string&, Node*) const;
+		template<typename T> T* find(string&, Node*) const;
 		Node* find_node(string&, Node*) const;
+		void expand_matches(const string&, Node*);
+		void collapse_all(Node*);
 		Node* find_min(void);
 		Node* find_min(Node*);
 		Node* find_max(void);

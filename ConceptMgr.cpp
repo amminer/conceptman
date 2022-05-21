@@ -5,7 +5,14 @@
  *	FILE:		ConceptMgr.cpp
  *	PURPOSE:	Defines a main class that uses an RBT to store and manage
  * concept objects. Supports insert, display, remove_all, find by name,
- * editing and removal of concepts by name, etc TODO
+ * editing of concepts by name, etc.
+ *	Removal is not supported by the tree (spec says not needed if tree is
+ * self balancing), but is fully implemented up to the Node level such that
+ * all that must be done to get it working should be writing
+ * RBT::remove_data, RBT::remove_node, and RBT::fix_remove, the first 2 of
+ * which should be identical to BST::remove behaviors.
+ *	I desparately want to use system("clear") here, but graders may
+ * be using windows... shame on them! Just kidding please don't fail me.
  */
 
 ConceptMgr::ConceptMgr(bool debug)	//main loop
@@ -17,7 +24,7 @@ ConceptMgr::ConceptMgr(bool debug)	//main loop
 		main_loop();
 	cout << "\nThanks for stopping by!\n";
 }
-void ConceptMgr::test(void)
+void ConceptMgr::test(void) //debug
 {
 	STL			a, d, g;
 	PythonLib	b, e, h;
@@ -30,7 +37,6 @@ void ConceptMgr::test(void)
 	e.set_name("python globals");	//<--result of user entering "global"
 	f.set_name("OOP");
 
-	cout << "\n/|\\|/~*Digital Rolodex*~/|\\|/\n" << tree << "\n";
 	cout << "DEBUG: Adding some concepts...\n";
 	add_concept(&a);
 	add_concept(&b);
@@ -38,12 +44,9 @@ void ConceptMgr::test(void)
 	add_concept(&d);
 	add_concept(&e);
 	add_concept(&f);
-	main_loop();
-	//remove_concept();
-	//remove_topic();
-	//TODO etc tests
+	main_loop();		//edit as needed
 }
-void ConceptMgr::add_concept(Concept* new_c)
+void ConceptMgr::add_concept(Concept* new_c) //debug
 {
 	if		(auto s = dynamic_cast<STL*>(new_c); s)
 		tree.insert(*s);
@@ -52,24 +55,23 @@ void ConceptMgr::add_concept(Concept* new_c)
 	else if	(auto m = dynamic_cast<ModernCpp*>(new_c); m)
 		tree.insert(*m);
 	else //uhoh
-		throw out_of_range("Dynamic cast failure!"); //should never see this happen
+		throw out_of_range("Dynamic cast failure!"); //should never happen
 }
 
 //UI
 void ConceptMgr::main_loop(bool cont, string _choice)
 {
-	//TODO
 	if (cont){ //guards entire function
 	cout << "\n/|\\|/~*Digital Rolodex*~/|\\|/\n" << tree << '\n';
 	cout << "Would you like to...\n"
 		 << "{a}dd a concept to the program,\n"
 		 << "{e}dit a concept in the program,\n"
-		 << "{rem}ove a concept from the program,\n"
-		 << "{remove} a topic from the program,\n"
+		 //<< "{r}emove a concept from the program,\n"
+		 //<< "{rem}ove a topic from the program,\n"
 		 << "{exp}and a topic by name,\n"
 		 << "{col}lapse a topic by name,\n"
-		 << "{look}up a concept by keyword/type,\n"
-		 << "{sel}ect a website, or\n"
+		 << "{l}ookup & expand all concepts containing a keyword,\n"
+		 << "{s}elect a website, or\n"
 		 << "{!q} to exit?\n: ";
 	try{
 		_choice = get_string(1); //may throw invalid
@@ -77,17 +79,17 @@ void ConceptMgr::main_loop(bool cont, string _choice)
 			add_concept();
 		else if (_choice == "e")
 			edit_concept();
-		else if (_choice == "rem")
-			remove_concept();
-		else if (_choice == "remove")
-			remove_topic();
+		//else if (_choice == "r")		//not required by spec
+			//remove_concept();
+		//else if (_choice == "rem")	//not required by spec
+			//remove_topic();
 		else if (_choice == "exp")
 			expand_topic();
 		else if (_choice == "col")
 			collapse_topic();
-		else if (_choice == "look")
+		else if (_choice == "l")
 			lookup();
-		else if (_choice == "sel")
+		else if (_choice == "s")
 			select_site();
 		else
 			throw invalid_argument(_choice);
@@ -111,7 +113,6 @@ void ConceptMgr::main_loop(bool cont, string _choice)
 
 void ConceptMgr::add_concept(void)
 {
-	//TODO test
 	string _choice;
 	STL _new_s;
 	PythonLib _new_p;
@@ -152,31 +153,136 @@ void ConceptMgr::add_concept(void)
 	catch (const char*& user_cancels){
 		;
 	}
+	return;
 }
 
 void ConceptMgr::edit_concept(void)
 {
-	//TODO
+	string _choice {""};
+	string _choice2 {""};
+	Concept* to_edit {nullptr};
+	cout << "Which class or modernCppwould you like to edit?\n"
+		 << "{Enter a topic name, or !q to cancel}: ";
+	try{
+		_choice = get_string(2);
+		to_edit = find_concept(true, _choice, "");
+		/* find_concept implemented
+		cout << "Specify a concept type, or leave blank to match any type\n"
+			 << "{python} class, {stl} class, modern {c++} concept name,\n"
+			 << "or {!q} to cancel: ";
+		_choice2 = get_string(0);
+		if (_choice2 == "")
+			to_edit = tree.find<Concept>(_choice); //null if not in tree
+		else if (_choice2 == "python")
+			to_edit = tree.find<PythonLib>(_choice); //null if not in tree
+		else if (_choice2 == "stl")
+			to_edit = tree.find<STL>(_choice); //null if not in tree
+		else if (_choice2 == "c++")
+			to_edit = tree.find<ModernCpp>(_choice); //null if not in tree
+		else
+			throw invalid_argument(_choice); //redo?
+		*/
+
+		if (to_edit)
+			edit_or_add(to_edit);
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		edit_concept();
+	}
+
+	catch (const char*& user_cancels){
+		;
+	}
+
+	return;
+}
+//MUST NOT BE CALLED WITH NULL
+void ConceptMgr::edit_or_add(Concept* to_edit)
+{
+	string _choice = "";
+	cout << "Do you want to {edit} or {rem}ove existing info, or {add} new info?\n"
+		 << "{!q} to cancel: ";
+	try{
+		_choice = get_string(2); //thrown !q would be caught in Mgr::edit_concept()
+		if (_choice == "edit")
+			to_edit->edit();
+		else if (_choice == "add")
+			to_edit->add();
+		else if (_choice == "rem")
+			to_edit->remove();
+		else
+			throw invalid_argument(_choice);
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		edit_or_add(to_edit);
+	}
 }
 
+/*
 void ConceptMgr::remove_topic(void)
 {
-	//TODO
+	//todo not required
 }
+*/
 
+/*
 void ConceptMgr::remove_concept(void)
 {
-	//TODO
+	//todo not required
 }
+*/
 
 void ConceptMgr::select_site(void)
 {
-	//TODO
+	string _choice {""};
+	string _choice2 {""};
+	Concept* to_select {nullptr};
+	cout << "Which class or modernCppwould you like to select a site from?\n"
+		 << "{Enter a topic name, or !q to cancel}: ";
+	try{
+		_choice = get_string(2);
+		to_select = find_concept(true, _choice, "");
+		/* find_concept implemented
+		cout << "Specify a concept type, or leave blank to match any type\n"
+			 << "{python} class, {stl} class, modern {c++} concept name,\n"
+			 << "or {!q} to cancel: ";
+		_choice2 = get_string(0);
+		if (_choice2 == "")
+			to_edit = tree.find<Concept>(_choice); //null if not in tree
+		else if (_choice2 == "python")
+			to_edit = tree.find<PythonLib>(_choice); //null if not in tree
+		else if (_choice2 == "stl")
+			to_edit = tree.find<STL>(_choice); //null if not in tree
+		else if (_choice2 == "c++")
+			to_edit = tree.find<ModernCpp>(_choice); //null if not in tree
+		else
+			throw invalid_argument(_choice); //redo?
+		*/
+
+		if (to_select)
+			to_select->select_site();
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		select_site();
+	}
+
+	catch (const char*& user_cancels){
+		;
+	}
+
+	return;
 }
 
 void ConceptMgr::expand_topic(void)
 {
-	//TODO
 	string _choice {""};
 	Node* to_expand {nullptr};
 	cout << "Which topic would you like to expand?\n"
@@ -199,33 +305,106 @@ void ConceptMgr::expand_topic(void)
 	catch (const char*& user_quits){
 		;
 	}
-
+	return;
 }
 
 void ConceptMgr::collapse_topic(void)
 {
-	//TODO
+	string _choice {""};
+	Node* to_collapse {nullptr};
+	cout << "Which topic would you like to collapse?\n"
+		 << "Enter a topic name, or {all}, or {!q} to cancel: ";
+	try{
+		_choice = get_string(2);
+		if (_choice == "all")
+			tree.collapse_all();
+		else{
+			to_collapse = tree.find_node(_choice); //null if not in tree
+			if (to_collapse)
+				to_collapse->collapse();
+			else
+				throw invalid_argument(_choice); //redo?
+		}
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		collapse_topic();
+	}
+
+	catch (const char*& user_quits){
+		;
+	}
+	return;
 }
 
+Concept* ConceptMgr::find_concept(bool print, string _choice, string _choice2)
+{
+	Concept* to_select {nullptr};
+	try{ //guards entire function
+	if (print){
+			if (_choice == ""){
+				cout << "Which class or modernCppwould you like to find?\n"
+					 << "{Enter a topic name, or !q to cancel}: ";
+				_choice = get_string(2);
+			}
+			cout << "Specify a concept type, or leave blank to match any type\n"
+				 << "{python} class, {stl} class, modern {c++} concept name,\n"
+				 << "or {!q} to cancel: ";
+			_choice2 = get_string(0);
+	}
+	if (_choice2 == "")
+		to_select = tree.find<Concept>(_choice); //null if not in tree
+	else if (_choice2 == "python")
+		to_select = tree.find<PythonLib>(_choice); //null if not in tree
+	else if (_choice2 == "stl")
+		to_select = tree.find<STL>(_choice); //null if not in tree
+	else if (_choice2 == "c++")
+		to_select = tree.find<ModernCpp>(_choice); //null if not in tree
+	else
+		throw invalid_argument(_choice); //redo?
+	}
+
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		find_concept(true, _choice, ""); //won't return until cancel or good input
+	}
+
+	catch (const char*& user_cancels){
+		return nullptr;
+	}
+
+	return to_select;
+}
+
+//search by keyword
 void ConceptMgr::lookup(void)
 {
-	//TODO
-}
+	string _choice {""};
+	cout << "Enter a keyword to expand all topics with concepts\n"
+		 << "containing the keyword in any of their info\n"
+		 << "{or !q to cancel}: ";
+	try{
+		_choice = get_string(2);
+		tree.expand_matches(_choice);
+	}
 
-//template<typename T> void ConceptMgr::lookup_by_type<T>(void) {} //TODO tpp
+	catch (invalid_argument& bad_input){
+		disp_invalid_input((string) bad_input.what());
+		cout << "Please try again.\n";
+		lookup();
+	}
+
+	catch (const char*& user_cancels){
+		;
+	}
+
+}
 
 int main(void)
 {
-	//ConceptMgr application;
-	ConceptMgr application(true);
+	//ConceptMgr application;		//user mode
+	ConceptMgr application(true);	//debug mode
 }
-
-
-
-
-
-
-
-
-
-

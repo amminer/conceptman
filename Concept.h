@@ -48,7 +48,7 @@ class Concept: public Util	//ABC
 		//remove website, method, pro, or con
 		virtual void remove(string = "");
 		//contains website, method, pro or con
-		virtual bool contains(string&) const =0;	//pure virtual//ABC
+		virtual bool contains(const string&) const =0;	//pure virtual//ABC
 		//string arg used to search for Library method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
@@ -57,12 +57,10 @@ class Concept: public Util	//ABC
 
 	protected:
 		string name; //must be protected to access from derived operators
-
-	private:
 		string description;
- 		//set preferred for fast random access?
 		set<Website> websites; //set best for prioritizing lookup speed?
 
+	private:
 		//Called by UI functions, validate input, throw exceptions
 		void set_name(void);
 		void set_description(void);
@@ -86,7 +84,7 @@ class Library: public Concept
 		virtual void add(string = "");								//add method
 		virtual void edit(string = "");							   //edit method
 		virtual void remove(string = "");						 //remove method
-		virtual bool contains(string&) const; //partially match method name/desc
+		virtual bool contains(const string&) const; //partially match method name/desc
 
 	protected:
 		set<Method> methods;
@@ -133,7 +131,7 @@ class PythonLib: public Library
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false, bool = false);
 		virtual void edit(string = "");				   //edit method, class name
-		virtual bool contains(string&) const; //part. match class/meth name/desc
+		virtual bool contains(const string&) const; //part. match class/meth name/desc
 
 	private:
 		string lib_name;
@@ -162,7 +160,7 @@ class ModernCpp: public Concept
 		virtual void add(string = "");							//add pro or con
 		virtual void edit(string = "");						   //edit pro or con
 		virtual void remove(string = "");					 //remove pro or con
-		virtual bool contains(string&) const;	 //partially match pros and cons
+		virtual bool contains(const string&) const;	 //partially match pros and cons
 
 	private:
 		set<string> pros;
