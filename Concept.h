@@ -52,6 +52,9 @@ class Concept: public Util	//ABC
 		//string arg used to search for Library method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
+		void set_name(string); //TODO remove after testing
+		string& get_name(void); //TODO remove after testing
+
 	protected:
 		string name; //must be protected to access from derived operators
 
@@ -115,6 +118,8 @@ class STL: public Library
 class PythonLib: public Library
 {
 	public:
+		PythonLib(void);
+
 		bool operator< (const PythonLib& op2) const;
 		//not sure about this, prob not a good move for use in tree-by-name
 		//bool operator==(const PythonLib& op2) const;

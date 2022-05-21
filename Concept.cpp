@@ -36,6 +36,18 @@ ostream& operator<<(ostream& out, const Concept& op2)
 
 /*	PUBLIC METHODS	*/
 
+//TODO remove after testing
+string& Concept::get_name(void)
+{
+	return name;
+}
+
+//TODO remove after testing
+void Concept::set_name(string n)
+{
+	name = n;
+}
+
 //should only be called after a concept has been displayed
 void Concept::select_site(void)	const //demanded by spec for some reason
 {
@@ -606,6 +618,10 @@ bool PythonLib::operator==(const PythonLib& op2) const
 }
 */
 
+
+PythonLib::PythonLib(void)
+	: Library(), lib_name("NOT SET") {}
+
 bool PythonLib::operator<(const PythonLib& op2) const
 {
 	return (lib_name < op2.lib_name);
@@ -617,10 +633,9 @@ void PythonLib::display(ostream& out) const
 {
 	//this is a rough draft for testing
 	if (name == "global")
-		out << "\n/*~~~Python Library Methods Global to " << lib_name;
+		out << "\n/*~~~Python Methods Global to " << lib_name;
 	else
-		cout << "\n/*~~~Python Library Methods of\n"
-			 <<   "Library " << lib_name << ", belonging to class ";
+		cout << "\n/*~~~Python Library Methods of " << lib_name << " in class ";
 	Library::display(out); //name, desc, websites, methods handled here
 }
 

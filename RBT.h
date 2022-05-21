@@ -42,17 +42,22 @@ class Node
 {
 	public:
 		Node(void);
-		Node(const Node& src);
+		Node(const Node&);
+		Node(const Concept&);
+		~Node(void);
 
 		Node& operator=(const Node& op2);
 		friend ostream& operator<<(ostream& out, const Node& op2);
 
+		Node* get_parent(void) const;
+		Node*& get_parent(void);
 		Node* get_left(void) const;
 		Node*& get_left(void);
 		Node* get_right(void) const;
 		Node*& get_right(void);
 		List get_data(void) const;
 		List& get_data(void);
+		void set_parent(Node*);
 		void set_left(Node*);
 		void set_right(Node*);
 		void set_data(const List&);
@@ -84,30 +89,34 @@ class RBT
 		~RBT(void);
 
 		RBT& operator=(const RBT& op2);
-		friend ostream& operator<<(ostream& out, const RBT& op2); //maybe?
+		friend ostream& operator<<(ostream& out, const RBT& op2);
 
-		void insert(const Concept&); //may require rotation
-		void display(void);		//TODO
-		void remove_all(void);	//TODO
+		void insert(const Concept&);
+		void display(void) const;
+		void remove_all(void);
 
-		bool is_empty(void);		//TODO
-		bool contains(string&);		//TODO
-		Concept& find(string&);		//TODO
-		Concept& find_min(void);	//TODO
-		Concept& find_max(void);	//TODO
+		bool is_empty(void);
+		Concept* find(string&) const;
+
+		Node* get_root(void);			//TODO remove after testing
+
 
 	private:
 		Node* root;
 
 		//recursive helpers
 		void copy_all(Node*, Node*&);
-		void insert(Node*);					//TODO
-		void display(Node*);					//TODO
-		void remove_all(Node*);				//TODO
-		bool contains(string&, Node*);	//TODO
-		Node* find(string&, Node*);		//TODO
-		Node* find_min(Node*);			//TODO
-		Node* find_max(Node*);			//TODO
+		void insert(Node*&, Node*&);
+		void fix_insert(void);			//TODO
+		void in_order_ostream_dump(ostream& out, const Node* tree) const;
+		void remove_all(Node*&);
+		Concept* find(string&, Node*) const;
+		Node* find_min(void);
+		Node* find_min(Node*);
+		Node* find_max(void);
+		Node* find_max(Node*);
+		Node* find_predecessor(Node*);
+		Node* find_successor(Node*);
 };
 
 #include "RBT.tpp" //template function definition

@@ -23,6 +23,22 @@ Node::Node(const Node& src)
 	: color(src.color),		left(src.left),	right(src.right),
 	  parent(src.parent),	data(src.data)	{}
 
+//inits a node to a singleton list containing src
+Node::Node(const Concept& src)
+	: color(true),		left(nullptr),	right(nullptr), //red on insertion
+	  parent(nullptr)
+{
+	add_data(src);
+}
+
+Node::~Node(void)
+{
+	//if (!data.empty()){
+	for (auto c_sptr: data)
+		c_sptr.reset();
+	//}
+}
+
 /* 	OPERATORS		*/
 
 // = sets only data, does not copy color or position
@@ -43,8 +59,12 @@ Node& Node::operator=(const Node& op2)
 ostream& operator<<(ostream& out, const Node& op2) //friend
 {
 	//temp for testing
-	out << "NODE AT " << &op2 << ", COLOR:" << op2.color << ", LEFT:" << op2.left << ", RIGHT:" << op2.right
-		<< ", PARENT:" << op2.parent << ", DATA:\n";
+	out << "NODE AT " << &op2 << ", COLOR:" << op2.color << ", LEFT:" << op2.get_left() << ", RIGHT:" << op2.get_right()
+		<< ", PARENT:" << op2.get_parent() << ", DATA:";
+	if (!op2.data.empty())
+		out << " first concept at " << op2.data.front().get() << '\n';
+	else
+		out << '\n';
 	auto it = op2.data.begin();
 	auto end = op2.data.end();
 	if (it == end)
@@ -58,58 +78,64 @@ ostream& operator<<(ostream& out, const Node& op2) //friend
 
 /*	PUBLIC METHODS	*/
 
+Node* Node::get_parent(void) const
+{
+	return parent;
+}
+
+Node*& Node::get_parent(void)
+{
+	return parent;
+}
+
 Node* Node::get_left(void) const
 {
-	//TODO test
 	return left;
 }
 
 Node*& Node::get_left(void)
 {
-	//TODO test
 	return left;
 }
 
 Node* Node::get_right(void) const
 {
-	//TODO test
 	return right;
 }
 
 Node*& Node::get_right(void)
 {
-	//TODO test
 	return right;
 }
 
 List Node::get_data(void) const
 {
-	//TODO test
 	return data;
 }
 
 List& Node::get_data(void)
 {
-	//TODO test
 	return data;
+}
+
+void Node::set_parent(Node* new_parent)
+{
+	parent = new_parent;
 }
 
 void Node::set_left(Node* new_left)
 {
-	//TODO test
 	left = new_left;
 }
 
 void Node::set_right(Node* new_right)
 {
-	//TODO test
 	right = new_right;
 }
 
 //add a concept to the internal list
 void Node::add_data(const Concept& new_concept)
 {
-	//TODO is this the way?
 	if (auto m = dynamic_cast<const ModernCpp*>(&new_concept); m){
 		shared_ptr<ModernCpp> new_m{new ModernCpp(*m)};
 		data.push_front(new_m);
@@ -217,6 +243,18 @@ RBT::~RBT(void)
 	if (root)
 		remove_all(root);
 }
+void RBT::remove_all(Node*& rem_root)
+{
+	Node*& rem_left = rem_root->get_left();
+	Node*& rem_right = rem_root->get_right();
+	if (rem_left)
+		remove_all(rem_left);
+	if (rem_right)
+		remove_all(rem_right);
+	delete rem_root;
+	rem_root = nullptr;
+	return;
+}
 
 /* 	OPERATORS		*/
 
@@ -230,81 +268,148 @@ RBT& RBT::operator=(const RBT& op2)
 	}
 	return *this;
 }
-void RBT::remove_all(Node* rem_root)
-{
-	//TODO test
-	Node* rem_left = rem_root->get_left();
-	Node* rem_right = rem_root->get_right();
-	if (rem_left)
-		remove_all(rem_left);
-	if (rem_right)
-		remove_all(rem_right);
-	delete rem_root;
-	rem_root = nullptr;
-	return;
-}
 
 ostream& operator<<(ostream& out, const RBT& op2) //friend
 {
-	//TODO maybe not
+	if (!op2.root)
+		out << "Tree is empty!";
+	else
+		op2.in_order_ostream_dump(out, op2.root);
+	return out;
 }
 
 /*	PUBLIC METHODS	*/
 
-//TODO
-
-void RBT::insert(const Concept&) //may require rotation
+void RBT::insert(const Concept& new_c) //may require rotation
 {
-	//TODO the big one
+	Node* new_node = new Node(new_c);
+	insert(new_node, root); //recursive helper
+	//fix_insert();
 }
 
-void RBT::display(void)
+void RBT::display(void) const
 {
-	//TODO in-order traversal
+	if (!root)
+		cout << "Tree is empty!\n";
+	else
+		in_order_ostream_dump(cout, root);
+	return;
 }
-
 bool RBT::is_empty(void)
 {
-	//TODO
+	bool ret = true;
+	if (root)
+		ret = root->get_data().empty();
+	return ret;
+			
 }
 
-bool RBT::contains(string&)
+Concept* RBT::find(string& key) const
 {
-	//TODO
+	Concept* ret {nullptr};
+	if (root)
+		ret = find(key, root); 
+	return ret;
 }
 
-Concept& RBT::find(string&)
+Node* RBT::find_min(void)
 {
-	//TODO
+	//TODO test
+	Node* ret {nullptr};
+	if (root)
+		ret = find_min(root);
+	return ret;
 }
 
-Concept& RBT::find_min(void)
+Node* RBT::find_max(void)
 {
-	//TODO
-}
-
-Concept& RBT::find_max(void)
-{
-	//TODO
+	//TODO test
+	Node* ret {nullptr};
+	if (root)
+		ret = find_max(root);
+	return ret;
 }
 
 /*	PRIVATE METHODS	*/
 //recursive helpers
 
-void RBT::insert(Node*)
+void RBT::fix_insert(void)
 {
-	//TODO
+	//TODO the final piece of the puzzle
 }
 
-void RBT::display(Node*)
+void RBT::insert(Node*& new_node, Node*& this_node)
 {
-	//TODO
+	if (!this_node)	//case root is passed in null
+		this_node = new_node;
+	else{
+		Concept& new_c = *new_node->get_data().front();
+		Concept& this_c = *this_node->get_data().front();
+		Node*& this_left = this_node->get_left();
+		Node*& this_right = this_node->get_right();
+		if (new_c == this_c){	//case names match, add to same list
+			this_node->add_data(new_c);	//(discard new_node)
+		}
+		else if (new_c < this_c){	//case new < this, seek left
+			if (this_left)	//more to check
+				insert(new_node, this_left);
+			else{			//next up is void - add here
+				this_node->set_left(new_node);
+				new_node->set_parent(this_node);
+				//do nothing re: color
+			}
+		}
+		else{	//case new > this, seek right
+			if (this_right)
+				insert(new_node, this_right);
+			else{
+				this_node->set_right(new_node);
+				new_node->set_parent(this_node);
+				//do nothing re: color
+			}
+		}
+	}
 }
 
+Node* RBT::find_min(Node* node)
+{
+	//TODO test
+	if (!node->get_left())
+		return node;
+	else
+		return find_min(node->get_left());
+}
+
+Node* RBT::find_max(Node* node)
+{
+	//TODO test
+	if (!node->get_right())
+		return node;
+	else
+		return find_max(node->get_right());
+}
+
+Node* RBT::get_root(void) //TODO remove after testing
+{
+	return root;
+}
+
+void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
+{
+	if (!tree)
+		return;
+	else{
+		in_order_ostream_dump(out, tree->get_left());
+		out << *tree << '\n';
+		in_order_ostream_dump(out, tree->get_right());
+	}
+}
+
+//preorder traversal
 //DEST MUST BE NULL ON INITIAL CALL
 void RBT::copy_all(Node* src, Node*& dest)
 {
-	//TODO test
+	//TODO test 
 	Node* clone_left = src->get_left();
 	Node* clone_right = src->get_right();
 	dest = new Node(*src); //copy constr to copy position 
@@ -315,23 +420,28 @@ void RBT::copy_all(Node* src, Node*& dest)
 	return;
 }
 
-bool RBT::contains(string&, Node*)
+//preorder traversal
+Concept* RBT::find(string& key, Node* node) const
+{
+	Concept* ret {nullptr};
+	if (!node)
+		ret = nullptr; //unnecessary but explicit
+	else if (Concept* that = node->find_data<Concept>(key).get(); that)
+		ret = that;
+	else{
+		ret = find(key, node->get_left());
+		if (!ret)
+			ret = find(key, node->get_right());
+	}
+	return ret;
+}
+
+Node* find_predecessor(Node*)
 {
 	//TODO
 }
 
-Node* RBT::find(string&, Node*)
+Node* find_successor(Node*)
 {
 	//TODO
 }
-
-Node* RBT::find_min(Node*)
-{
-	//TODO
-}
-
-Node* RBT::find_max(Node*)
-{
-	//TODO
-}
-
