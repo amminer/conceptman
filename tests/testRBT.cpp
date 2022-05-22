@@ -67,8 +67,8 @@ void testRBT(void)
 	tree.insert(c);
 	tree.display();
 	cout << "Root concept is at\n" << tree.get_root()->get_data().front().get() <<'\n';
-	cout << "If insert was balanced, root should be at\n" << tree.find(c.get_name()) << '\n';
-	cout << "If insert was NOT balanced, root should be at\n" << tree.find(a.get_name()) << '\n';
+	cout << "If insert was balanced, root should be at\n" << tree.find<Concept>(c.get_name()) << '\n';
+	cout << "If insert was NOT balanced, root should be at\n" << tree.find<Concept>(a.get_name()) << '\n';
 }
 
 int main(void)

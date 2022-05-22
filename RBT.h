@@ -52,6 +52,8 @@ class Node
 		void collapse(void);
 		void expand(void);	//for display
 
+		bool is_red(void) const;
+		bool is_black(void) const;
 		Node* get_parent(void) const;
 		Node*& get_parent(void);
 		Node* get_left(void) const;
@@ -70,9 +72,7 @@ class Node
 		template<typename T> void remove_data(const string&);
 		template<typename T> shared_ptr<Concept> find_data(const string&);
 
-		void recolor(void);
-		void rotate_left(void);
-		void rotate_right(void);
+		void recolor(bool);
 
 	private:
 		bool color;		//true=red, false=black
@@ -99,6 +99,8 @@ class RBT
 		friend ostream& operator<<(ostream& out, const RBT& op2);
 
 		void insert(const Concept&);
+		void rotate_left(Node*);
+		void rotate_right(Node*);
 		void display(ostream& = cout) const;
 		void remove_all(void);
 		bool is_empty(void);
@@ -115,8 +117,10 @@ class RBT
 
 		//recursive helpers
 		void copy_all(Node*, Node*&);
-		void insert(Node*&, Node*&);
-		void fix_insert(void);			//TODO
+		void insert(Node*&, Node*&, Node*&);
+		void fix_insert(Node*);			//TODO
+		void fix_insert_recursive(Node*);			//TODO
+		//void fix_insert(Node*&, Node*&, Node*&);			//TODO
 		void in_order_ostream_dump(ostream& out, const Node* tree) const;
 		void remove_all(Node*&);
 		template<typename T> T* find(string&, Node*) const;

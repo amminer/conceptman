@@ -22,7 +22,7 @@ ConceptMgr::ConceptMgr(bool debug)	//main loop
 		test();
 	else
 		main_loop();
-	cout << "\nThanks for stopping by!\n";
+	cout << "\nExiting the program...\n";
 }
 void ConceptMgr::test(void) //debug
 {
