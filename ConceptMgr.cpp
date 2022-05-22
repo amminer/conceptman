@@ -69,13 +69,13 @@ void ConceptMgr::test(void) //debug - uncomment declarations/definitions first
 	add_concept(&w);
 	main_loop();		//edit as needed
 }
-void ConceptMgr::add_concept(Concept* new_c) //debug
+void ConceptMgr::add_concept(const Concept* new_c) //debug
 {
-	if		(auto s = dynamic_cast<STL*>(new_c); s)
+	if		(auto s = dynamic_cast<const STL*>(new_c); s)
 		tree.insert(*s);
-	else if	(auto p = dynamic_cast<PythonLib*>(new_c); p)
+	else if	(auto p = dynamic_cast<const PythonLib*>(new_c); p)
 		tree.insert(*p);
-	else if	(auto m = dynamic_cast<ModernCpp*>(new_c); m)
+	else if	(auto m = dynamic_cast<const ModernCpp*>(new_c); m)
 		tree.insert(*m);
 	else //uhoh
 		throw out_of_range("Dynamic cast failure!"); //should never happen
@@ -194,23 +194,6 @@ void ConceptMgr::edit_concept(void)
 	try{
 		_choice = get_string(1);
 		to_edit = find_concept(true, _choice, "");
-		/* find_concept implemented
-		cout << "Specify a concept type, or leave blank to match any type\n"
-			 << "{python} class, {stl} class, modern {c++} concept name,\n"
-			 << "or {!q} to cancel: ";
-		_choice2 = get_string(0);
-		if (_choice2 == "")
-			to_edit = tree.find<Concept>(_choice); //null if not in tree
-		else if (_choice2 == "python")
-			to_edit = tree.find<PythonLib>(_choice); //null if not in tree
-		else if (_choice2 == "stl")
-			to_edit = tree.find<STL>(_choice); //null if not in tree
-		else if (_choice2 == "c++")
-			to_edit = tree.find<ModernCpp>(_choice); //null if not in tree
-		else
-			throw invalid_argument(_choice); //redo?
-		*/
-
 		if (to_edit)
 			edit_or_add(to_edit);
 		else
@@ -267,7 +250,7 @@ void ConceptMgr::remove_concept(void)
 }
 */
 
-void ConceptMgr::select_site(void)
+void ConceptMgr::select_site(void) const
 {
 	string _choice {""};
 	string _choice2 {""};
@@ -277,23 +260,6 @@ void ConceptMgr::select_site(void)
 	try{
 		_choice = get_string(1);
 		to_select = find_concept(true, _choice, "");
-		/* find_concept implemented
-		cout << "Specify a concept type, or leave blank to match any type\n"
-			 << "{python} class, {stl} class, modern {c++} concept name,\n"
-			 << "or {!q} to cancel: ";
-		_choice2 = get_string(0);
-		if (_choice2 == "")
-			to_edit = tree.find<Concept>(_choice); //null if not in tree
-		else if (_choice2 == "python")
-			to_edit = tree.find<PythonLib>(_choice); //null if not in tree
-		else if (_choice2 == "stl")
-			to_edit = tree.find<STL>(_choice); //null if not in tree
-		else if (_choice2 == "c++")
-			to_edit = tree.find<ModernCpp>(_choice); //null if not in tree
-		else
-			throw invalid_argument(_choice); //redo?
-		*/
-
 		if (to_select)
 			to_select->select_site();
 		else
@@ -371,7 +337,7 @@ void ConceptMgr::collapse_topic(void)
 	return;
 }
 
-Concept* ConceptMgr::find_concept(bool print, string _choice, string _choice2)
+Concept* ConceptMgr::find_concept(bool print, string _choice, string _choice2) const
 {
 	Concept* to_select {nullptr};
 	try{ //guards entire function

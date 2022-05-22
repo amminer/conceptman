@@ -209,16 +209,16 @@ void Node::set_data(const List& new_list)
 	data = new_list;
 }
 
-void Node::recolor(bool new_color)
+void Node::recolor(const bool new_color)
 {
 	color = new_color;
 }
 
-bool Node::has_loose_match(const string& key)
+bool Node::has_loose_match(const string& key) const
 {
 	return has_loose_match(key, data.begin(), data.end());
 }
-bool Node::has_loose_match(const string& key, L_iterator list, L_iterator end)
+bool Node::has_loose_match(const string& key, L_iterator list, L_iterator end) const
 {
 	if (list == end)
 		return false;
@@ -315,22 +315,22 @@ ostream& operator<<(ostream& out, const RBT& op2) //friend
 
 /*	PUBLIC METHODS	+	PRIVATE RECURSIVE HELPERS	*/
 
-size_t RBT::height(void)
+size_t RBT::height(void) const
 {
 	return height(root);
 }
-size_t RBT::height(Node* tree)
+size_t RBT::height(Node* tree) const
 {
 	if (!tree)
 		return 0;
 	return max(height(tree->get_left()), height(tree->get_right())) + 1;
 }
 
-size_t RBT::size(void)
+size_t RBT::size(void) const
 {
 	return count_nodes(root);
 }
-size_t RBT::count_nodes(Node* tree)
+size_t RBT::count_nodes(Node* tree) const
 {
 	if (!tree)
 		return 0;
@@ -398,6 +398,12 @@ void RBT::insert(Node*& new_node, Node*& this_node, Node*& this_parent)
 (HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH)
    V FIX_INSERT */
 
+/*	Should only be called when a new node is inserted and its parent is red.
+ *	Wrapper function guards recursive calls that would otherwise fault.
+ *	Adapted/translated to recursion from the common iterative algorithm:
+ *		https://github.com/Bibeknam/algorithmtutorprograms/blob/master/data-
+ *	structures/red-black-trees/RedBlackTree.cpp
+ */
 void RBT::fix_insert(Node* new_node)
 {
 	if (Node*& mother = new_node->get_parent(); mother){
@@ -504,8 +510,20 @@ void RBT::display(ostream& out) const
 		in_order_ostream_dump(out, root);
 	return;
 }
+//could potentially be used for a (very inefficient) save-to-file
+void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
+{
+	if (!tree)
+		return;
+	else{
+		in_order_ostream_dump(out, tree->get_left());
+		out << *tree;
+		in_order_ostream_dump(out, tree->get_right());
+	}
+}
 
-bool RBT::is_empty(void)
+
+bool RBT::is_empty(void) const
 {
 	bool ret = true;
 	if (root)
@@ -524,7 +542,27 @@ T* RBT::find(string& key) const
 		ret = find<T>(key, root); 
 	return ret;
 }
+//preorder traversal
+template<typename T>
+T* RBT::find(string& key, Node* node) const
+{
+	T* ret {nullptr};
+	if (!node)
+		ret = nullptr; //unnecessary but explicit
+	//please fasten your seatbelt for the following line
+	else if (T* that =
+			 dynamic_cast<T*>(node->find_data<T>(key).get()); that){
+		ret = that;
+	}
+	else{
+		ret = find<T>(key, node->get_left());
+		if (!ret)
+			ret = find<T>(key, node->get_right());
+	}
+	return ret;
+}
 */
+
 
 Node* RBT::find_node(string& key) const
 {
@@ -533,8 +571,22 @@ Node* RBT::find_node(string& key) const
 		ret = find_node(key, root); 
 	return ret;
 }
+Node* RBT::find_node(string& key, Node* node) const
+{
+	Node* ret {nullptr};
+	if (!node)
+		ret = nullptr; //unnecessary but explicit
+	else if (Concept* that = node->find_data<Concept>(key).get(); that)
+		ret = node;
+	else{
+		ret = find_node(key, node->get_left());
+		if (!ret)
+			ret = find_node(key, node->get_right());
+	}
+	return ret;
+}
 
-Node* RBT::find_min(void)
+Node* RBT::find_min(void) const
 {
 	Node* ret {nullptr};
 	if (root)
@@ -542,7 +594,7 @@ Node* RBT::find_min(void)
 	return ret;
 }
 
-Node* RBT::find_max(void)
+Node* RBT::find_max(void) const
 {
 	Node* ret {nullptr};
 	if (root)
@@ -587,14 +639,9 @@ void RBT::collapse_all(Node* this_node)
 }
 
 /*	PRIVATE METHODS	*/
-//recursive helpers
+//recursive helpers not currently in use
 
-/*	Should only be called when a new node is inserted and its parent is red.
- *	Wrapper function guards recursive calls that would otherwise fault.
- *	Adapted/translated to recursion from the various iterative solutions:
- *		https://github.com/Bibeknam/algorithmtutorprograms/blob/master/data-structures/red-black-trees/RedBlackTree.cpp
- */
-Node* RBT::find_min(Node* node)
+Node* RBT::find_min(Node* node) const
 {
 	if (!node->get_left())
 		return node;
@@ -602,7 +649,7 @@ Node* RBT::find_min(Node* node)
 		return find_min(node->get_left());
 }
 
-Node* RBT::find_max(Node* node)
+Node* RBT::find_max(Node* node) const
 {
 	if (!node->get_right())
 		return node;
@@ -616,56 +663,6 @@ Node* RBT::get_root(void) //testing
 	return root;
 }
 */
-
-//could potentially be used for a (very inefficient) save-to-file
-void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
-{
-	if (!tree)
-		return;
-	else{
-		in_order_ostream_dump(out, tree->get_left());
-		out << *tree;
-		in_order_ostream_dump(out, tree->get_right());
-	}
-}
-
-/*
-"defined" in .tpp
-//preorder traversal
-template<typename T>
-T* RBT::find(string& key, Node* node) const
-{
-	T* ret {nullptr};
-	if (!node)
-		ret = nullptr; //unnecessary but explicit
-	//please fasten your seatbelt for the following line
-	else if (T* that =
-			 dynamic_cast<T*>(node->find_data<T>(key).get()); that){
-		ret = that;
-	}
-	else{
-		ret = find<T>(key, node->get_left());
-		if (!ret)
-			ret = find<T>(key, node->get_right());
-	}
-	return ret;
-}
-*/
-
-Node* RBT::find_node(string& key, Node* node) const
-{
-	Node* ret {nullptr};
-	if (!node)
-		ret = nullptr; //unnecessary but explicit
-	else if (Concept* that = node->find_data<Concept>(key).get(); that)
-		ret = node;
-	else{
-		ret = find_node(key, node->get_left());
-		if (!ret)
-			ret = find_node(key, node->get_right());
-	}
-	return ret;
-}
 
 /*
 Node* find_predecessor(Node*)

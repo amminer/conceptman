@@ -39,7 +39,7 @@ class Concept: public Util	//ABC
 		bool operator==(const Concept& op2) const;
 		friend ostream& operator<<(ostream& out, const Concept& op2);
 
-		string& get_name(void);
+		const string& get_name(void) const;
 		void select_site(void) const;	//demanded by spec for some reason
 		virtual void display(ostream& out = cout) const; //"polymorphic" op<<
 		//calls all private setters/1 of each adder
@@ -55,7 +55,7 @@ class Concept: public Util	//ABC
 		//string arg used to search for Library method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
-		void set_name(string); //testing
+		void set_name(const string); //testing
 
 	protected:
 		string name; //must be protected to access from derived operators

@@ -36,7 +36,7 @@ using namespace std;
  */
 
 typedef forward_list<shared_ptr<Concept>> List;
-typedef forward_list<shared_ptr<Concept>>::iterator L_iterator;
+typedef forward_list<shared_ptr<Concept>>::const_iterator L_iterator;
 
 class Node
 {
@@ -67,12 +67,12 @@ class Node
 		void set_right(Node*);
 		void set_data(const List&);
 		void add_data(const Concept&);
-		bool has_loose_match(const string&);
+		bool has_loose_match(const string&) const;
 		 //client must specify what type of concept to rm or find
 		template<typename T> void remove_data(const string&);
 		template<typename T> shared_ptr<Concept> find_data(const string&);
 
-		void recolor(bool);
+		void recolor(const bool);
 
 	private:
 		bool color;		//true=red, false=black
@@ -84,8 +84,9 @@ class Node
 
 		//void remove_data(Concept&, L_iterator, L_iterator);
 		//should this be shared_ptr<T>?
-		template<typename T> shared_ptr<Concept> find_data(const Concept&, L_iterator, L_iterator);
-		bool has_loose_match(const string&, L_iterator, L_iterator);
+		template<typename T> shared_ptr<Concept>
+			find_data(const Concept&, L_iterator, L_iterator) const;
+		bool has_loose_match(const string&, L_iterator, L_iterator) const;
 };
 
 class RBT
@@ -98,14 +99,14 @@ class RBT
 		RBT& operator=(const RBT& op2);
 		friend ostream& operator<<(ostream& out, const RBT& op2);
 
-		size_t size(void);
-		size_t height(void);
+		size_t size(void) const;
+		size_t height(void) const;
 		void insert(const Concept&);
 		void rotate_left(Node*);
 		void rotate_right(Node*);
 		void display(ostream& = cout) const;
 		void remove_all(void);
-		bool is_empty(void);
+		bool is_empty(void) const;
 		template<typename T> T* find(string&) const;
 		Node* find_node(string&) const;
 		void expand_matches(const string&);
@@ -118,8 +119,8 @@ class RBT
 		Node* root;
 
 		//recursive helpers
-		size_t height(Node*);
-		size_t count_nodes(Node*);
+		size_t height(Node*) const;
+		size_t count_nodes(Node*) const;
 		void copy_all(Node*, Node*&);
 		void insert(Node*&, Node*&, Node*&);
 		void fix_insert(Node*);
@@ -130,10 +131,10 @@ class RBT
 		Node* find_node(string&, Node*) const;
 		void expand_matches(const string&, Node*);
 		void collapse_all(Node*);
-		Node* find_min(void);
-		Node* find_min(Node*);
-		Node* find_max(void);
-		Node* find_max(Node*);
+		Node* find_min(void) const;
+		Node* find_min(Node*) const;
+		Node* find_max(void) const;
+		Node* find_max(Node*) const;
 		//Node* find_predecessor(Node*);
 		//Node* find_successor(Node*);
 };

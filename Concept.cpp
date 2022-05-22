@@ -41,13 +41,13 @@ ostream& operator<<(ostream& out, const Concept& op2)
 /*	PUBLIC METHODS	*/
 
 //abbreviated display
-string& Concept::get_name(void)
+const string& Concept::get_name(void) const
 {
 	return name;
 }
 
 //testing
-void Concept::set_name(string n)
+void Concept::set_name(const string n)
 {
 	name = n;
 }

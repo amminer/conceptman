@@ -27,7 +27,7 @@ class ConceptMgr: public Util
 
 		//debug
 		void test(void);
-		void add_concept(Concept*);
+		void add_concept(const Concept*);
 
 		//UI
 		void main_loop(bool = true, string = "_");
@@ -36,10 +36,11 @@ class ConceptMgr: public Util
 		void edit_or_add(Concept* to_edit);
 		void remove_topic(void);
 		void remove_concept(void);
-		void select_site(void);
-		void expand_topic(void);
-		void collapse_topic(void);
-		Concept* find_concept(bool = false, string = "", string = ""); //bool whether mainloop display
+		void select_site(void) const;
+		void expand_topic(void); //not const, collapsed/expanded is in state
+		void collapse_topic(void); //not const, collapsed/expanded is in state
+		//arg 1 = whether to display prompts
+		Concept* find_concept(bool = false, string = "", string = "") const;
 		void rtti(void); //sorry, not sure what else to name this
-		void lookup(void);
+		void lookup(void); //not const, expands nodes
 };
