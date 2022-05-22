@@ -5,6 +5,7 @@
 #include <forward_list>
 #include <iterator>
 #include <memory>
+#include <algorithm> //std::max
 
 using namespace std;
 
@@ -98,6 +99,8 @@ class RBT
 		RBT& operator=(const RBT& op2);
 		friend ostream& operator<<(ostream& out, const RBT& op2);
 
+		size_t size(void);
+		size_t height(void);
 		void insert(const Concept&);
 		void rotate_left(Node*);
 		void rotate_right(Node*);
@@ -116,11 +119,12 @@ class RBT
 		Node* root;
 
 		//recursive helpers
+		size_t height(Node*);
+		size_t count_nodes(Node*);
 		void copy_all(Node*, Node*&);
 		void insert(Node*&, Node*&, Node*&);
-		void fix_insert(Node*);			//TODO
-		void fix_insert_recursive(Node*);			//TODO
-		//void fix_insert(Node*&, Node*&, Node*&);			//TODO
+		void fix_insert(Node*);
+		void fix_insert_recursive(Node*);
 		void in_order_ostream_dump(ostream& out, const Node* tree) const;
 		void remove_all(Node*&);
 		template<typename T> T* find(string&, Node*) const;
@@ -131,8 +135,8 @@ class RBT
 		Node* find_min(Node*);
 		Node* find_max(void);
 		Node* find_max(Node*);
-		Node* find_predecessor(Node*);
-		Node* find_successor(Node*);
+		//Node* find_predecessor(Node*);
+		//Node* find_successor(Node*);
 };
 
-#include "RBT.tpp" //template function definition
+#include "RBT.tpp" //template function definitions

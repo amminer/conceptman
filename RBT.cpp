@@ -321,6 +321,31 @@ ostream& operator<<(ostream& out, const RBT& op2) //friend
 
 /*	PUBLIC METHODS	*/
 
+size_t RBT::height(void)
+{
+	return height(root);
+}
+size_t RBT::height(Node* tree)
+{
+	//TODO test
+	if (!tree)
+		return 0;
+	return max(height(tree->get_left()), height(tree->get_right())) + 1;
+}
+
+size_t RBT::size(void)
+{
+	return count_nodes(root);
+}
+size_t RBT::count_nodes(Node* tree)
+{
+	if (!tree)
+		return 0;
+	else
+		return count_nodes(tree->get_left()) + count_nodes(tree->get_right())
+			 + 1;
+}
+
 void RBT::insert(const Concept& new_c) //may require rotation
 {
 	Node* new_node = new Node(new_c);
@@ -391,12 +416,12 @@ bool RBT::is_empty(void)
 
 /*
 "defined" in .tpp
-template<typename T> TODO update
+template<typename T>
 T* RBT::find(string& key) const
 {
 	T* ret {nullptr};
 	if (root)
-		ret = find(key, root); 
+		ret = find<T>(key, root); 
 	return ret;
 }
 */
@@ -411,7 +436,6 @@ Node* RBT::find_node(string& key) const
 
 Node* RBT::find_min(void)
 {
-	//TODO test
 	Node* ret {nullptr};
 	if (root)
 		ret = find_min(root);
@@ -420,7 +444,6 @@ Node* RBT::find_min(void)
 
 Node* RBT::find_max(void)
 {
-	//TODO test
 	Node* ret {nullptr};
 	if (root)
 		ret = find_max(root);
@@ -466,9 +489,13 @@ void RBT::collapse_all(Node* this_node)
 /*	PRIVATE METHODS	*/
 //recursive helpers
 
+/*	Should only be called when a new node is inserted and its parent is red.
+ *	Wrapper function guards recursive calls that would otherwise fault.
+ *	Adapted/translated to recursion from the various iterative solutions:
+ *		https://github.com/Bibeknam/algorithmtutorprograms/blob/master/data-structures/red-black-trees/RedBlackTree.cpp
+ */
 void RBT::fix_insert(Node* new_node)
 {
-	//TODO test
 	if (Node*& mother = new_node->get_parent(); mother){
 		if (Node*& grandmother = mother->get_parent(); grandmother){
 			if (mother->is_red())
@@ -521,7 +548,7 @@ void RBT::fix_insert_recursive(Node* new_node)//, Node*& mother,
 				rotate_left(new_node);
 			}
 			new_node->get_parent()->recolor(0);	//case BA:LL & rest of BA:LR
-			new_node->get_parent()->get_parent()->recolor(1); //TODO segfault in recolor
+			new_node->get_parent()->get_parent()->recolor(1);
 			rotate_right(new_node->get_parent()->get_parent());
 			return fix_insert(new_node);
 		}
@@ -568,7 +595,6 @@ void RBT::insert(Node*& new_node, Node*& this_node, Node*& this_parent)
 
 Node* RBT::find_min(Node* node)
 {
-	//TODO test
 	if (!node->get_left())
 		return node;
 	else
@@ -577,7 +603,6 @@ Node* RBT::find_min(Node* node)
 
 Node* RBT::find_max(Node* node)
 {
-	//TODO test
 	if (!node->get_right())
 		return node;
 	else
@@ -604,7 +629,6 @@ void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
 //DEST MUST BE NULL ON INITIAL CALL
 void RBT::copy_all(Node* src, Node*& dest)
 {
-	//TODO test 
 	Node* clone_left = src->get_left();
 	Node* clone_right = src->get_right();
 	dest = new Node(*src); //copy constr to copy position 
@@ -617,15 +641,18 @@ void RBT::copy_all(Node* src, Node*& dest)
 
 /*
 "defined" in .tpp
-//preorder traversal TODO update
+//preorder traversal
 template<typename T>
 T* RBT::find(string& key, Node* node) const
 {
 	T* ret {nullptr};
 	if (!node)
 		ret = nullptr; //unnecessary but explicit
-	else if (T* that = node->find_data<T>(key).get(); that)
+	//please fasten your seatbelt for the following line
+	else if (T* that =
+			 dynamic_cast<T*>(node->find_data<T>(key).get()); that){
 		ret = that;
+	}
 	else{
 		ret = find<T>(key, node->get_left());
 		if (!ret)
@@ -650,12 +677,12 @@ Node* RBT::find_node(string& key, Node* node) const
 	return ret;
 }
 
+/*
 Node* find_predecessor(Node*)
 {
-	//TODO
 }
 
 Node* find_successor(Node*)
 {
-	//TODO
 }
+*/
