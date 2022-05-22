@@ -1,29 +1,31 @@
 #pragma once
 
 #include "SubConcept.h"
-#include <set>
-#include <iterator>
+#include <set>			//websites and methods are unique
+#include <iterator>		//sets use iterators for sequential access
 
 /*	Amelia Miner				5/12/2022
  *	cs202, section 003
  *	FILE:		Concept.h
- *	PURPOSE:	Declare the central hierarchy for the program,
- *			one base class Concept and three derived classes Library,
- *			PythonLib, and ModernCpp. Each class has a self similar
- *			interface with the exception of one function per derived
- *			class. Concept is an abstract base class (ABC).
+ *	PURPOSE:	Declare the central hierarchy for the program:
+
+ *			One abstract base class Concept,
+ *				one hub class Library inheriting from Concept,
+ *					two leaf classes PythonLib and STL inheriting from Library,
+ *			and one leaf class ModernCpp inheriting from Concept.
+ *
  *				PythonLib and Library objects contain a collection of methods,
- *			which belong to the container indicated by Library.name or the class
- *			indicated by PythonLib.class_name within the library PythonLib.name.
+ *			which belong to the class indicated by Concept.name. PythonLibs
+ *			additionally store a lib_name, whereas STL only refers to one lib.
  *			PythonLib methods which do not belong to some class within their
- *			library are sorted into a single PythonLib instance w/ that library
- *			name + class_name "global to library". Library methods which do not
- *			belong to some container are sorted into a single Library instance with
- *			the name "global to Library".
+ *			library are sorted into a single PythonLib instance w/ that lib_
+ *			name + class_name "python globals". STL methods which do not
+ *			belong to some class are sorted into a single STL instance with
+ *			the name "stl globals".
  *				ModernCpp has a container of strings for pros and a container of
  *			strings for cons. There's one ModernCpp instance for each modern c++
- *			programming technique (ex smart pointers,
- *			initialization-within-conditionals, etc).
+ *			programming technique (ex smart pointers, initialization-within-
+ *			conditionals, etc).
  */
 
 class Concept: public Util	//ABC
@@ -37,6 +39,7 @@ class Concept: public Util	//ABC
 		bool operator==(const Concept& op2) const;
 		friend ostream& operator<<(ostream& out, const Concept& op2);
 
+		string& get_name(void);
 		void select_site(void) const;	//demanded by spec for some reason
 		virtual void display(ostream& out = cout) const; //"polymorphic" op<<
 		//calls all private setters/1 of each adder
@@ -52,8 +55,7 @@ class Concept: public Util	//ABC
 		//string arg used to search for Library method or PythonLib class 
 		//or method by name, or search for a pros/cons of a ModernCpp by keyword
 
-		void set_name(string); //TODO remove after testing
-		string& get_name(void); //TODO remove after testing
+		void set_name(string); //testing
 
 	protected:
 		string name; //must be protected to access from derived operators
@@ -127,7 +129,7 @@ class PythonLib: public Library
 		//std::map tracks each PythonLib::name and maps it to a table of python
 		//libraries in ConceptManager to allow user to see which libraries are
 		//purely OO... not my favorite but it works todo
-		bool is_object_oriented(void);
+		void display_package(void) const;
 		virtual void display(ostream& out = cout) const;    //"polymorphic" op<<
 		virtual bool setup(bool = false, bool = false, bool = false);
 		virtual void edit(string = "");				   //edit method, class name

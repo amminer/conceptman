@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <climits>		//INT_MAX
-#include <exception>	//bad_argument
+#include <exception>	//invalid_argument
 #include <regex>		//sorry, you have to look at a regex pattern
 
 using namespace std;

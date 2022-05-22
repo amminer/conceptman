@@ -1,7 +1,6 @@
-CFLAGS=     -g -std=c++17
+CFLAGS=     -std=c++17 -g -Wall
 VFLAGS=		--leak-check=full
-SOURCES=	tests/testRBT.cpp RBT.cpp Concept.cpp SubConcept.cpp
-#SOURCES=	ConceptMgr.cpp RBT.cpp Concept.cpp SubConcept.cpp
+SOURCES=	ConceptMgr.cpp RBT.cpp Concept.cpp SubConcept.cpp
 EXE=     	main.out
 CC=			g++
 
@@ -14,6 +13,9 @@ clean:
 test:
 	$(CC) $(CFLAGS) $(SOURCES) -o $(EXE)
 	./$(EXE)
+
+prod:
+	$(CC) -std==c++17 $(SOURCES) -o $(EXE)
 
 memch:
 	#if [ ! -f ./a.out ]; then

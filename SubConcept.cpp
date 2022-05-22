@@ -8,6 +8,11 @@
  *			description string re: a STL or PythonLib method, class Website can
  *			read in and set a string URL and an int rating out of 10. Both
  *			classes can display their contents via ostream operator<< overloads.
+ *				Also defines a base class Util to be inherited by any class
+ *			that needs std::cin/cout i/o.
+ *				NOTE: In retrospect, should have written these (and all funcs
+ *			that call these) to take istream/ostream args for testing and maybe
+ *			logging purposes... next time.
  */
 
 /*			CLASS UTIL			*/
@@ -79,7 +84,7 @@ bool Website::setup(bool url_set, bool desc_set, bool rating_set)
 	bool ret {true};
 	try{
 		if (! url_set){
-			cout << "Setting up a new Website...\n"; //testing, will refine message to user
+			cout << "Setting up a new Website...\n";
 			set_url();
 			url_set = true;
 		}
@@ -187,7 +192,7 @@ void Website::set_rating(void)
 void Website::set_description(void)
 {
 	cout << "Enter a description or {!q} to cancel: ";
-	description = get_string();	//may throw
+	description = get_string(1);	//may throw... should have min 1?
 }
 
 /*		CLASS METHOD		*/
@@ -223,7 +228,7 @@ bool Method::setup(bool name_set, bool desc_set)
 	bool ret {true};
 	try{
 		if (! name_set){
-			cout << "Setting up a new Method...\n"; //testing, will refine 
+			cout << "Setting up a new Method...\n";
 			set_name();
 			name_set = true;
 		}
@@ -296,7 +301,7 @@ const string& Method::get_desc(void) const
 void Method::set_name(void)
 {
 	cout << "Enter a name or {!q} to cancel: ";
-	name = get_string();		//may throw
+	name = get_string(1);		//may throw
 }
 
 void Method::set_description(void)

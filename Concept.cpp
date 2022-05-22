@@ -12,17 +12,21 @@
 
 /*			CLASS CONCEPT			*/
 
+//mainly for testing, should never see these values in the tree
 Concept::Concept(void)
 	: name("NOT SET"), description("NOT SET") {}
 
+//for lookup in bst using ==
 Concept::Concept(string key_name)
 	: name(key_name), description("NOT SET (key)") {}
 
+//equality based on name
 bool Concept::operator==(const Concept& op2) const
 {
 	return name == op2.name;
 }
 
+//for sorting in tree
 bool Concept::operator<(const Concept& op2) const
 {
 	return name < op2.name;
@@ -36,19 +40,21 @@ ostream& operator<<(ostream& out, const Concept& op2)
 
 /*	PUBLIC METHODS	*/
 
-//TODO remove after testing
+//abbreviated display
 string& Concept::get_name(void)
 {
 	return name;
 }
 
-//TODO remove after testing
+//testing
 void Concept::set_name(string n)
 {
 	name = n;
 }
 
-//should only be called after a concept has been displayed
+//these methods assume that a concept has been made visible from the top level
+//UI code by the user -
+//should only be called after the main interface has been recently displayed
 void Concept::select_site(void)	const //demanded by spec for some reason
 {
 	int _choice {-2};
@@ -56,7 +62,7 @@ void Concept::select_site(void)	const //demanded by spec for some reason
 		 << " by its number? {-1 to cancel}: ";
 	try{
 		_choice = get_int(1, websites.size());
-		//very inefficient to iterate over a set... but we need ordered unique
+		//very inefficient to iterate over a set? But we need ordered unique
 		cout << "Selected:\n" << next(websites.begin(), _choice-1)->get_url()
 			 << '\n';
 	}
@@ -74,9 +80,11 @@ void Concept::select_site(void)	const //demanded by spec for some reason
 	return;
 }
 
+//this should only be called as part of a derived display function
+//derived should output some name with the prefix:
+// "/*~~~"
 void Concept::display(ostream& out) const
 {
-	//this is a rough draft for testing
 	size_t count = 0;
 	if (! (name == "stl globals" or name == "python globals"))
 		out << name;
@@ -251,7 +259,7 @@ void Concept::remove_site(void)
 		default:
 			cout << "Which website would you like to remove? {!q to cancel}: ";
 			try{
-				_choice = get_string(2);
+				_choice = get_string(1);
 				for (const Website& w: websites){
 					if (w == _choice){
 						match = true;
@@ -307,7 +315,7 @@ void Concept::edit_site(void)
 		default:
 			cout << "Which website would you like to edit? {!q to cancel}: ";
 			try{
-				_choice = get_string(2);
+				_choice = get_string(1);
 				for (const Website& w: websites){
 					if (w == _choice){
 						match = true;
@@ -343,7 +351,6 @@ void Concept::edit_site(void)
 
 void Library::display(ostream& out) const
 {
-	//this is a rough draft for testing
 	size_t count {0};
 	//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
 	//	out << "/*~~~Library concept ";
@@ -363,8 +370,6 @@ bool Library::setup(bool base_set_up, bool method_added)
 	bool ret {true};
 	try{
 		if (! base_set_up){
-			//if (! dynamic_cast<const PythonLib*>(this)) //rm bc new inheritance
-			//	cout << "Setting up a new STL...\n"; //testing, will refine 
 			cout << "For the class of the library to which these methods\n"
 				 << "will belong, unless these methods are global to the\n"
 				 << "library in which case enter \"global\",\n";
@@ -611,7 +616,6 @@ bool STL::setup(void)
 
 void STL::display(ostream& out) const    //"polymorphic" op<<
 {
-	//this is a rough draft for testing
 	if (name == "stl globals")
 		out << "/*~~~Global STL Methods";
 	else
@@ -649,9 +653,22 @@ bool PythonLib::operator<(const PythonLib& op2) const
 
 /*	PUBLIC METHODS	*/
 
+//for RTTI
+void PythonLib::display_package(void) const
+{
+	if (name == "python globals")
+		cout << "These library methods";
+	else
+		cout << "Methods belonging to class " << name;
+	cout << " can be used by adding:\n"
+		 << "import " << lib_name << '\n'
+		 << "to the top of your python code file.\n"
+		 << "You can probably install them using the command\n"
+		 << "pip install " << lib_name << '\n';
+}
+
 void PythonLib::display(ostream& out) const
 {
-	//this is a rough draft for testing
 	if (name == "python globals")
 		out << "/*~~~Python Methods Global to " << lib_name;
 	else
@@ -736,19 +753,6 @@ bool PythonLib::contains(const string& key) const
 	return ret;
 }
 
-//	Returns whether class name is anything but "global" value (set to
-//the string "python globals" by setup)
-//	std::map tracks each PythonLib::name and maps it to a boolean set by
-//calls to each PyLib::is_o_o inside ConceptManager. Allows user to see
-//which libraries are purely OO... not my favorite but it works... todo
-bool PythonLib::is_object_oriented(void)
-{
-	bool ret {true};
-	if (name == "python globals")
-		ret = false;
-	return ret;
-}
-
 /*	PRIVATE METHODS	*/
 void PythonLib::set_lib_name(void)
 {
@@ -793,6 +797,7 @@ void PythonLib::edit_pythonlib(string _choice)
 ModernCpp::ModernCpp(void)
 	: Concept() {}
 
+//ModernCpp used as key for comparisons since root class is abstract
 ModernCpp::ModernCpp(string key_name)
 	: Concept(key_name) {}
 
@@ -800,7 +805,6 @@ ModernCpp::ModernCpp(string key_name)
 
 void ModernCpp::display(ostream& out) const
 {
-	//this is a rough draft for testing
 	size_t count {0};
 	out << "/*~~~Modern C++ technique: ";
 	Concept::display(out); //name, desc, websites handled here
@@ -947,7 +951,8 @@ string ModernCpp::check_applicability(string key) //cats partial matches
 	string ret = "\n";
 	bool no_pros = true, no_cons = true;
 	try{
-		cout << "Enter a keyword to check pros and cons for: ";
+		cout << "Finding all relevant pros and cons of " << name << ":\n"
+			 << "Enter a keyword to find pros and cons by, or {!q} to cancel: ";
 		key = get_string(1);
 		for (const string& s: pros){
 			if (s.find(key) != string::npos){
@@ -955,7 +960,7 @@ string ModernCpp::check_applicability(string key) //cats partial matches
 					ret += "! Pros:\n";
 					no_pros = false;
 				}
-				ret += (s + '\n');
+				ret += ('\t' + s + '\n');
 			}
 		}
 		for (const string& s: cons){
@@ -964,7 +969,7 @@ string ModernCpp::check_applicability(string key) //cats partial matches
 					ret += "! Cons:\n";
 					no_cons = false;
 				}
-				ret += (s + '\n');
+				ret += ('\t' + s + '\n');
 			}
 		}
 		if (no_pros and no_cons)

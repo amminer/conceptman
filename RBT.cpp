@@ -76,25 +76,6 @@ ostream& operator<<(ostream& out, const Node& op2) //friend
 	return out;
 	//else do nothing; do not print empty nodes, since we can't remove them...
 }
-/*
-	//temp for testing
-	out << "NODE AT " << &op2 << ", COLOR:" << op2.color << ", LEFT:" << op2.get_left() << ", RIGHT:" << op2.get_right()
-		<< ", PARENT:" << op2.get_parent() << ", DATA:";
-	if (!op2.data.empty())
-		out << " first concept at " << op2.data.front().get() << '\n';
-	else
-		out << '\n';
-	auto it = op2.data.begin();
-	auto end = op2.data.end();
-	if (it == end)
-		out << "NONE (this would not display at all in the full program\n";
-	while (it != end){
-		out << **it << '\n';
-		++it;
-	}
-	return out;
-}
-*/
 
 /*	PUBLIC METHODS	*/
 
@@ -312,6 +293,19 @@ RBT& RBT::operator=(const RBT& op2)
 	}
 	return *this;
 }
+//preorder traversal
+//DEST MUST BE NULL ON INITIAL CALL
+void RBT::copy_all(Node* src, Node*& dest)
+{
+	Node* clone_left = src->get_left();
+	Node* clone_right = src->get_right();
+	dest = new Node(*src); //copy constr to copy position 
+	if (clone_left)
+		copy_all(clone_left, dest->get_left());
+	if (clone_right)
+		copy_all(clone_right, dest->get_right());
+	return;
+}
 
 ostream& operator<<(ostream& out, const RBT& op2) //friend
 {
@@ -319,7 +313,7 @@ ostream& operator<<(ostream& out, const RBT& op2) //friend
 	return out;
 }
 
-/*	PUBLIC METHODS	*/
+/*	PUBLIC METHODS	+	PRIVATE RECURSIVE HELPERS	*/
 
 size_t RBT::height(void)
 {
@@ -327,7 +321,6 @@ size_t RBT::height(void)
 }
 size_t RBT::height(Node* tree)
 {
-	//TODO test
 	if (!tree)
 		return 0;
 	return max(height(tree->get_left()), height(tree->get_right())) + 1;
@@ -356,16 +349,126 @@ void RBT::insert(const Concept& new_c) //may require rotation
 	else
 		insert(new_node, root, root->get_parent()); //recursive helper
 }
+void RBT::insert(Node*& new_node, Node*& this_node, Node*& this_parent)
+{
+	Concept& new_c = *new_node->get_data().front();
+	Concept& this_c = *this_node->get_data().front();
+	Node*& this_left = this_node->get_left();
+	Node*& this_right = this_node->get_right();
+	bool check_rbt {false};
+	if (new_c == this_c){	//case names match, add to same list
+		this_node->add_data(new_c);	//(discard new_node)
+	}
+	else if (new_c < this_c){	//case new < this, seek left
+		if (this_left)	//more to check
+			return insert(new_node, this_left, this_node);
+		else{			//next up is void - add here
+			this_node->set_left(new_node);
+			new_node->set_parent(this_node);
+			check_rbt = true;
+		}
+	}
+	else{	//case new > this, seek right
+		if (this_right)
+			return insert(new_node, this_right, this_node);
+		else{
+			this_node->set_right(new_node);
+			new_node->set_parent(this_node);
+			check_rbt = true;
+		}
+	}
+	if (check_rbt){
+		if (new_node->get_parent()->is_black()) //CASE 2
+			; //tree cannot be violated, go on/no need to fix
+		else{ //new node's parent is red CASE 3
+			fix_insert(new_node);
+		}
+	}
+}
 
+/* ^ INSERT
+   Welcome to the ascii cafe - if you're using vim and jumping between blocks
+         ,-"-.		with { and }, take a moment to rest or visit the
+       _r-----i          _		RBT insert algorithms adjacent to the
+       \      |-.      ,###.		cafe. enjoy your stay!
+     	|     | |    ,-------.
+       	|     | |   c|       |      {draw pie here}  ,--. http://www.ascii-art
+       	|     |'     |       |      ______TODO_____ C|  | .de/ascii/c/coffee.txt
+		(=====)      =========      \_____________/  `==' 
+(HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH)
+   V FIX_INSERT */
+
+void RBT::fix_insert(Node* new_node)
+{
+	if (Node*& mother = new_node->get_parent(); mother){
+		if (Node*& grandmother = mother->get_parent(); grandmother){
+			if (mother->is_red())
+				fix_insert_recursive(new_node);
+		}
+		else
+			mother->recolor(0);
+	}
+	else
+		new_node->recolor(0);
+}
+//Only call when mother is red. num of ! indicates level of nesting in logic
+void RBT::fix_insert_recursive(Node* new_node)//, Node*& mother,
+					 //Node*& grandmother)
+{
+	Node* mother = new_node->get_parent();
+	Node* grandmother = mother->get_parent();
+	Node* aunt = nullptr;
+	if (mother == grandmother->get_right()){	//!case left aunt
+		aunt = grandmother->get_left();
+		if (aunt and aunt->is_red()){			//!!case red left aunt
+			aunt->recolor(0);
+			mother->recolor(0);
+			grandmother->recolor(1);
+			return fix_insert(grandmother);
+		}
+		else{									//!!case black left aunt (BA)
+			if (new_node == mother->get_left()){//!!!case BA:RL
+				new_node = mother;
+				rotate_right(new_node);
+				mother = new_node->get_parent();
+				grandmother = mother->get_parent();
+			}
+			mother->recolor(0);					//!!!case BA:RR & rest of BA:RL
+			grandmother->recolor(1);
+			rotate_left(grandmother);
+			return fix_insert(new_node);
+		}
+	}
+	else{										//!case right aunt
+		aunt = grandmother->get_right();
+		if (aunt and aunt->is_red()){			//!!case red right aunt
+			aunt->recolor(0);
+			mother->recolor(0);
+			grandmother->recolor(1);
+			return fix_insert(grandmother);
+		}
+		else{									//!!case black right aunt (BA)
+			if (new_node == mother->get_right()){//!!!case BA:LR
+				new_node = mother;
+				rotate_left(new_node);
+				mother = new_node->get_parent();
+				grandmother = mother->get_parent();
+			}
+			mother->recolor(0);					//!!!case BA:LL & rest of BA:LR
+			grandmother->recolor(1);
+			rotate_right(grandmother);
+			return fix_insert(new_node);
+		}
+	}
+}
 void RBT::rotate_left(Node* this_node)
 {
-	//TODO test
 	Node* this_right {this_node->get_right()};
 	Node* this_parent {this_node->get_parent()};
 	this_node->set_right(this_right->get_left());
 	if (this_right->get_left())
 		this_right->get_left()->set_parent(this_node);
-	this_right->set_parent(this_parent);	//368
+	this_right->set_parent(this_parent);
 	if (!this_parent)
 		root = this_right;
 	else if (this_node == this_parent->get_left())
@@ -374,18 +477,15 @@ void RBT::rotate_left(Node* this_node)
 		this_parent->set_right(this_right);
 	this_right->set_left(this_node);
 	this_node->set_parent(this_right);
-	//this_parent = this_right;
 }
-
 void RBT::rotate_right(Node* this_node)
 {
-	//TODO test
 	Node* this_left {this_node->get_left()};
 	Node* this_parent {this_node->get_parent()};
 	this_node->set_left(this_left->get_right());
 	if (this_left->get_right())
 		this_left->get_right()->set_parent(this_node);
-	this_left->set_parent(this_parent);	//         387
+	this_left->set_parent(this_parent);
 	if (!this_parent)
 		root = this_left;
 	else if (this_node == this_parent->get_right())
@@ -394,7 +494,6 @@ void RBT::rotate_right(Node* this_node)
 		this_parent->set_left(this_left);
 	this_left->set_right(this_node);
 	this_node->set_parent(this_left);
-	//this_parent = this_left;
 }
 
 void RBT::display(ostream& out) const
@@ -405,6 +504,7 @@ void RBT::display(ostream& out) const
 		in_order_ostream_dump(out, root);
 	return;
 }
+
 bool RBT::is_empty(void)
 {
 	bool ret = true;
@@ -494,105 +594,6 @@ void RBT::collapse_all(Node* this_node)
  *	Adapted/translated to recursion from the various iterative solutions:
  *		https://github.com/Bibeknam/algorithmtutorprograms/blob/master/data-structures/red-black-trees/RedBlackTree.cpp
  */
-void RBT::fix_insert(Node* new_node)
-{
-	if (Node*& mother = new_node->get_parent(); mother){
-		if (Node*& grandmother = mother->get_parent(); grandmother){
-			if (mother->is_red())
-				fix_insert_recursive(new_node);
-		}
-		else
-			mother->recolor(0);
-	}
-	else
-		new_node->recolor(0);
-}
-//Only call when mother is red
-void RBT::fix_insert_recursive(Node* new_node)//, Node*& mother,
-					 //Node*& grandmother)
-{
-	Node* mother = new_node->get_parent();
-	Node* grandmother = mother->get_parent();
-	Node* aunt = nullptr;
-
-	if (mother == grandmother->get_right()){	//!case left aunt
-		aunt = grandmother->get_left();
-		if (aunt and aunt->is_red()){			//case red left aunt
-			aunt->recolor(0);
-			mother->recolor(0);
-			grandmother->recolor(1);
-			return fix_insert(grandmother);
-		}
-		else{									//case black left aunt (BA)
-			if (new_node == mother->get_left()){//case BA:RL
-				new_node = mother;
-				rotate_right(new_node);
-			}
-			new_node->get_parent()->recolor(0);	//case BA:RR & rest of BA:RL
-			new_node->get_parent()->get_parent()->recolor(1);
-			rotate_left(new_node->get_parent()->get_parent());
-			return fix_insert(new_node);
-		}
-	}
-	else{										//!case right aunt
-		aunt = grandmother->get_right();
-		if (aunt and aunt->is_red()){			//case red right aunt
-			aunt->recolor(0);
-			mother->recolor(0);
-			grandmother->recolor(1);
-			return fix_insert(grandmother);
-		}
-		else{									//case black right aunt (BA)
-			if (new_node == mother->get_right()){//case BA:LR
-				new_node = mother;
-				rotate_left(new_node);
-			}
-			new_node->get_parent()->recolor(0);	//case BA:LL & rest of BA:LR
-			new_node->get_parent()->get_parent()->recolor(1);
-			rotate_right(new_node->get_parent()->get_parent());
-			return fix_insert(new_node);
-		}
-	}
-}
-
-void RBT::insert(Node*& new_node, Node*& this_node, Node*& this_parent)
-{
-	Concept& new_c = *new_node->get_data().front();
-	Concept& this_c = *this_node->get_data().front();
-	Node*& this_left = this_node->get_left();
-	Node*& this_right = this_node->get_right();
-	bool check_rbt {false};
-	if (new_c == this_c){	//case names match, add to same list
-		this_node->add_data(new_c);	//(discard new_node)
-	}
-	else if (new_c < this_c){	//case new < this, seek left
-		if (this_left)	//more to check
-			return insert(new_node, this_left, this_node);
-		else{			//next up is void - add here
-			this_node->set_left(new_node);
-			new_node->set_parent(this_node);
-			check_rbt = true;
-		}
-	}
-	else{	//case new > this, seek right
-		if (this_right)
-			return insert(new_node, this_right, this_node);
-		else{
-			this_node->set_right(new_node);
-			new_node->set_parent(this_node);
-			check_rbt = true;
-		}
-	}
-	if (check_rbt){
-		if (new_node->get_parent()->is_black()) //CASE 2
-			; //tree cannot be violated, go on/no need to fix
-		else{ //new node's parent is red CASE 3
-			fix_insert(new_node);
-		}
-	}
-	
-}
-
 Node* RBT::find_min(Node* node)
 {
 	if (!node->get_left())
@@ -609,11 +610,14 @@ Node* RBT::find_max(Node* node)
 		return find_max(node->get_right());
 }
 
-Node* RBT::get_root(void) //TODO remove after testing
+/*
+Node* RBT::get_root(void) //testing
 {
 	return root;
 }
+*/
 
+//could potentially be used for a (very inefficient) save-to-file
 void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
 {
 	if (!tree)
@@ -623,20 +627,6 @@ void RBT::in_order_ostream_dump(ostream& out, const Node* tree) const
 		out << *tree;
 		in_order_ostream_dump(out, tree->get_right());
 	}
-}
-
-//preorder traversal
-//DEST MUST BE NULL ON INITIAL CALL
-void RBT::copy_all(Node* src, Node*& dest)
-{
-	Node* clone_left = src->get_left();
-	Node* clone_right = src->get_right();
-	dest = new Node(*src); //copy constr to copy position 
-	if (clone_left)
-		copy_all(clone_left, dest->get_left());
-	if (clone_right)
-		copy_all(clone_right, dest->get_right());
-	return;
 }
 
 /*

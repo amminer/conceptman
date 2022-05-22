@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Concept.h"
+#include "Concept.h" 		//stores concepts
 #include <iostream>
-#include <forward_list>
-#include <iterator>
-#include <memory>
-#include <algorithm> //std::max
+#include <forward_list>		//stores lists of concepts
+#include <iterator>			//lists use iterators
+#include <algorithm>		//std::max
+#include <memory>			//god bless shared_ptr
 
 using namespace std;
 
@@ -32,8 +32,7 @@ using namespace std;
  *					w__/ \__z    -->	a__/ \__y
  *				a__/ \__x					x__/ \__z
  *
- *	For n nodes, the height of the tree has the relationship:
- *		n >= 2^(h/2) - 1
+ *	subtrees go along with their parents during rotations.
  */
 
 typedef forward_list<shared_ptr<Concept>> List;
@@ -112,7 +111,7 @@ class RBT
 		void expand_matches(const string&);
 		void collapse_all(void);
 
-		Node* get_root(void);			//TODO remove after testing
+		Node* get_root(void);			//testing
 
 
 	private:
