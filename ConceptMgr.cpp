@@ -50,23 +50,23 @@ void ConceptMgr::test(void) //debug - uncomment declarations/definitions first
 	w.set_name("orbust");
 
 	cout << "DEBUG: Adding some concepts...\n";
-	add_concept(&a);
-	add_concept(&b);
-	add_concept(&c);
-	add_concept(&d);
-	add_concept(&e);
-	add_concept(&f);
 	add_concept(&g);
+	add_concept(&a);
+	add_concept(&d);
+	add_concept(&b);
+	add_concept(&l);
+	add_concept(&c);
 	add_concept(&h);
 	add_concept(&i);
-	add_concept(&x);
-	add_concept(&y);
+	add_concept(&e);
+	add_concept(&f);
 	add_concept(&p);
 	add_concept(&o);
+	add_concept(&x);
+	add_concept(&y);
 	add_concept(&k);
-	add_concept(&m);
-	add_concept(&l);
 	add_concept(&w);
+	add_concept(&m);
 	main_loop();		//edit as needed
 }
 void ConceptMgr::add_concept(const Concept* new_c) //debug
